@@ -117,21 +117,21 @@ public class DatabaseManager {
 				int jobID = 1;
 				int time = 1;
 				String query = null;
-
+				Statement stmt= connection.createStatement();
 				while (line != null) {
 					if (line.length() == 0) {
 						line = bufferReadForFile.readLine();
 						continue;
 					}
-					Statement stmt = connection.createStatement();
 					query = "INSERT INTO PlatformMetrics VALUES ("
 							+ Integer.toString(time++) + ","
 							+ Integer.toString(jobID) + ","
 							+ Float.parseFloat(line.replace("%", ""))
 							+ ", 0, 0, 0, 0" + ")";
-					stmt.executeUpdate(query);
+					stmt.addBatch(query);
 					line = bufferReadForFile.readLine();
 				}
+				stmt.executeBatch();
 			} catch (IOException fileException) {
 				System.out
 						.println("\n There is a problem with the input file or path, please look the following trace to rectify it");
