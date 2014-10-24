@@ -1,13 +1,17 @@
 package com.hms.connection;
 
-import com.hms.common.Constants;
-
 import net.neoremind.sshxcute.core.ConnBean;
 import net.neoremind.sshxcute.core.Result;
 import net.neoremind.sshxcute.core.SSHExec;
 import net.neoremind.sshxcute.exception.TaskExecFailException;
 import net.neoremind.sshxcute.task.CustomTask;
 import net.neoremind.sshxcute.task.impl.ExecCommand;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.Logger;
+
+import com.hms.common.Constants;
+import com.hms.common.UserLog;
 
 public class ClusterMaster {
 
@@ -16,12 +20,16 @@ public class ClusterMaster {
 	
 	//Public
 	public String[] slaves = null;
-	public String errorCode = null;
+	
+	static final Logger log = (Logger) LogManager.getLogger(ClusterMaster.class.getName());
 	
 	public boolean connectToMaster(String ipAddress, String username, String password)
 	{
 		if (!(ipAddress.length() > 0 && username.length() > 0 && password.length() > 0))
 		{
+			UserLog.addToLog(Constants.errorCodes.get("WrongMasterDetails"));
+			log.error(Constants.errorCodes.get("WrongMasterDetails"));
+			
 			return false;
 		}
 		
@@ -29,15 +37,27 @@ public class ClusterMaster {
 
 			ConnBean cb = new ConnBean(ipAddress, username, password);
 
-			sshMaster = SSHExec.getInstance(cb);          
+			sshMaster = SSHExec.getInstance(cb);      
+			
+			if (sshMaster.connect())
+			{
+				UserLog.addToLog(Constants.errorCodes.get("SuccessMasterConnection"));
+				log.info(Constants.errorCodes.get("SuccessMasterConnection"));
+				
+				return true;
+			}
+			
+			UserLog.addToLog(Constants.errorCodes.get("FailedMasterConnection"));
+			log.info(Constants.errorCodes.get("FailedMasterConnection"));
 
-			return sshMaster.connect();
+			return false;
 
 		} catch (Exception e) {
 
-			System.out.println(e.getMessage());
-			e.printStackTrace();
-
+			UserLog.addToLog(Constants.errorCodes.get("FailedMasterConnection"));
+			log.error("Master connection exception");
+			log.error(e);
+			
 			return false;
 		} 
 	}
@@ -46,7 +66,8 @@ public class ClusterMaster {
 	{
 		if (sshMaster == null)
 		{
-			errorCode = Constants.NO_MASTER_CONNECTION;
+			UserLog.addToLog(Constants.errorCodes.get("NoMasterConnection"));
+			log.error(Constants.errorCodes.get("NoMasterConnection"));
 			
 			return false;
 		}
@@ -58,8 +79,8 @@ public class ClusterMaster {
 
 			if (catCmdRes.isSuccess)
 			{
-				System.out.println("Return code: " + catCmdRes.rc);
-				System.out.println("sysout: " + catCmdRes.sysout);
+				UserLog.addToLog(Constants.errorCodes.get("SuccessMasterSlaveListFetch"));
+				log.info(Constants.errorCodes.get("SuccessMasterSlaveListFetch"));
 				
 				slaves = catCmdRes.sysout.split("\n");
 				
@@ -67,18 +88,16 @@ public class ClusterMaster {
 			}                        
 			else
 			{
-				System.out.println("Return code: " + catCmdRes.rc);
-				System.out.println("error message: " + catCmdRes.error_msg);
+				UserLog.addToLog(Constants.errorCodes.get("FailedMasterSlaveListFetch"));
+				log.info(Constants.errorCodes.get("FailedMasterSlaveListFetch"));
 			}
 		} catch (TaskExecFailException e) {
-			System.out.println(e.getMessage());
-			e.printStackTrace();
+			log.error("Slave list exception");
+			log.error(e);
 		} catch (Exception e) {
-			System.out.println(e.getMessage());
-			e.printStackTrace();
+			log.error("Slave list exception");
+			log.error(e);
 		} 
-		
-		errorCode = Constants.NO_SLAVE_LIST;
 
 		return false;
 	}
@@ -87,6 +106,9 @@ public class ClusterMaster {
 	{
 		if (sshMaster != null)
 		{
+			UserLog.addToLog(Constants.errorCodes.get("ClosedMasterConnection"));
+			log.info(Constants.errorCodes.get("ClosedMasterConnection"));
+			
 			sshMaster.disconnect();
 		}
 	}
