@@ -18,6 +18,11 @@ public class Constants {
         aMap.put("FailedMasterSlaveListFetch", "Unable to fetch slave list from master successfully!");
         aMap.put("ClosedMasterConnection", "Closing connection with master...");
         
+        aMap.put("WrongSlaveDetails", "Something is wrong, please check the ip address, username or password!");
+        aMap.put("SuccessSlaveConnection", "Connected successfully to slave...");
+        aMap.put("FailedSlaveConnection", "Unable to connect to slave, cannot proceed further!");
+        aMap.put("ClosedSlaveConnection", "Closing connection with slave...");
+        
         aMap.put("ScriptUpload", "Uploaded script file...");
         aMap.put("ScriptExecutionSuccess", "Script file executed and running in background...");
         aMap.put("ScriptExecutionFailure", "Script file did not execute...");
@@ -32,6 +37,10 @@ public class Constants {
         
         aMap.put("ScriptKillSuccess", "Stopped script running in the background...");
         aMap.put("ScriptKillFailure", "Unable to terminate script running in the background!");
+        
+        aMap.put("ScriptProcessIDFetch", "Fetching process id of the script for later termination purpose...");
+        aMap.put("ScriptProcessIDFetchSuccess", "Got the process id of the script for later termination purpose...");
+        aMap.put("ScriptProcessIDFetchFailure", "Unable to fetch process id of the scrip and so it will run indefintly in the background!");
         
         ERRORCODES = Collections.unmodifiableMap(aMap);
     }

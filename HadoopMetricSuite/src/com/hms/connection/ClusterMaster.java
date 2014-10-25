@@ -1,6 +1,7 @@
 package com.hms.connection;
 
 import java.io.PrintWriter;
+import java.util.Date;
 
 import net.neoremind.sshxcute.core.ConnBean;
 import net.neoremind.sshxcute.core.Result;
@@ -14,16 +15,15 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Logger;
 
 import com.hms.common.Constants;
+import com.hms.common.JobSession;
 import com.hms.common.UserLog;
 
 public class ClusterMaster {
 
-	//Private
-	SSHExec sshMaster = null;
-
-	//Public
-	public String[] slaves = null;
-	public String scriptProcessID = null;
+	private SSHExec sshMaster = null;
+	private String[] slaveAddress = null;
+	private String scriptProcessID = null;
+	private String nodeID;
 
 	static final Logger log = (Logger) LogManager.getLogger(ClusterMaster.class.getName());
 
@@ -45,6 +45,8 @@ public class ClusterMaster {
 
 			if (sshMaster.connect())
 			{
+				nodeID = ipAddress;
+						
 				UserLog.addToLog(Constants.ERRORCODES.get("SuccessMasterConnection"));
 				log.info(Constants.ERRORCODES.get("SuccessMasterConnection"));
 
@@ -86,7 +88,7 @@ public class ClusterMaster {
 				UserLog.addToLog(Constants.ERRORCODES.get("SuccessMasterSlaveListFetch"));
 				log.info(Constants.ERRORCODES.get("SuccessMasterSlaveListFetch"));
 
-				slaves = catCmdRes.sysout.split("\n");
+				slaveAddress = catCmdRes.sysout.split("\n");
 
 				return true;
 			}                        
@@ -124,7 +126,7 @@ public class ClusterMaster {
 			CustomTask scriptPermission = new ExecCommand("chmod 755 " + Constants.USER_PATH + Constants.SCRIPT_NAME);
 			sshMaster.exec(scriptPermission);
 
-			CustomTask shellMaster = new ExecShellScript(Constants.USER_PATH,"./" + Constants.SCRIPT_NAME + " >> dummy.txt &", null);
+			CustomTask shellMaster = new ExecShellScript(Constants.USER_PATH.substring(0, Constants.USER_PATH.length()-1), "./" + Constants.SCRIPT_NAME + " >> dummy.txt &", "");
 
 			Result resMaster = sshMaster.exec(shellMaster);
 
@@ -132,13 +134,51 @@ public class ClusterMaster {
 			{
 				UserLog.addToLog(Constants.ERRORCODES.get("ScriptExecutionSuccess"));
 				log.info(Constants.ERRORCODES.get("ScriptExecutionSuccess"));
-
-				scriptProcessID = resMaster.sysout;
+				
+				fetchScriptProcessID();
 			}                        
 			else
 			{
 				UserLog.addToLog(Constants.ERRORCODES.get("ScriptExecutionFailure"));
 				log.info(Constants.ERRORCODES.get("ScriptExecutionFailure"));
+			}
+		} catch (TaskExecFailException e) {
+			log.error("Master script execution exception");
+			log.error(e);
+		} catch (Exception e) {
+			log.error("Master script execution exception");
+			log.error(e);
+		} 
+	}
+	
+	private void fetchScriptProcessID()
+	{
+		if (sshMaster == null)
+		{
+			UserLog.addToLog(Constants.ERRORCODES.get("NoMasterConnection"));
+			log.error(Constants.ERRORCODES.get("NoMasterConnection"));
+		}
+
+		try {
+
+			UserLog.addToLog(Constants.ERRORCODES.get("ScriptProcessIDFetch"));
+			log.info(Constants.ERRORCODES.get("ScriptProcessIDFetch"));
+
+			CustomTask shellMaster = new ExecShellScript(Constants.USER_PATH.substring(0, Constants.USER_PATH.length()-1), "pgrep " + Constants.SCRIPT_NAME, "");
+
+			Result resMaster = sshMaster.exec(shellMaster);
+
+			if (resMaster.isSuccess)
+			{
+				UserLog.addToLog(Constants.ERRORCODES.get("ScriptProcessIDFetchSuccess"));
+				log.info(Constants.ERRORCODES.get("ScriptProcessIDFetchSuccess"));
+				
+				scriptProcessID = resMaster.sysout;
+			}                        
+			else
+			{
+				UserLog.addToLog(Constants.ERRORCODES.get("ScriptProcessIDFetchFailure"));
+				log.info(Constants.ERRORCODES.get("ScriptProcessIDFetchFailure"));
 			}
 		} catch (TaskExecFailException e) {
 			log.error("Master script execution exception");
@@ -178,13 +218,17 @@ public class ClusterMaster {
 			UserLog.addToLog(Constants.ERRORCODES.get("NoMasterConnection"));
 			log.error(Constants.ERRORCODES.get("NoMasterConnection"));
 		}
+		
+		startUpSlaves();
+		
+		JobSession.startTime = fetchTime();
 
 		try {
 			String hadoopPath = Constants.USER_PATH + Constants.HADOOP_VERSION + Constants.HADOOP_BIN + " jar ";
 			String applicationPath = Constants.USER_PATH + Constants.APPLICATIONTYPES.get(type);
 
 			CustomTask runJob = new ExecCommand(hadoopPath + applicationPath);
-
+			
 			UserLog.addToLog(Constants.ERRORCODES.get("JobAboutToRun"));
 			log.info(Constants.ERRORCODES.get("JobAboutToRun"));
 
@@ -206,8 +250,48 @@ public class ClusterMaster {
 			log.error("Job execution exception");
 			log.error(e);
 		}
+		
+		JobSession.endTime = fetchTime();
+		
+		readLogFile();
 	}
 
+	private String fetchTime()
+	{
+		try {
+			CustomTask killJob = new ExecCommand("date +%s");
+
+			Result res = sshMaster.exec(killJob);
+
+			if (res.isSuccess)
+			{
+					if (res.sysout.trim().length() > 0)
+					{
+						return res.sysout.trim();
+					}
+					else
+					{
+						Date currentDate = new Date();
+						return "" + currentDate.getTime();
+					}
+			}                        
+			else
+			{
+				Date currentDate = new Date();
+				return "" + currentDate.getTime();
+			}
+		} catch (TaskExecFailException e) {
+			log.error("Start date fetch exception");
+			log.error(e);
+		} catch (Exception e) {
+			log.error("Start date fetch exception");
+			log.error(e);
+		}
+		
+		Date currentDate = new Date();
+		return "" + currentDate.getTime();
+	}
+	
 	private void killScriptRun()
 	{
 		if (sshMaster == null)
@@ -240,7 +324,7 @@ public class ClusterMaster {
 		}
 	}
 
-	public void readLogFile()
+	private void readLogFile()
 	{
 		if (sshMaster == null)
 		{
@@ -254,6 +338,8 @@ public class ClusterMaster {
 		{
 			//Insert into database
 		}
+		
+		fetchFromSlaves();
 	}
 
 	private boolean readCPULog()
@@ -274,7 +360,7 @@ public class ClusterMaster {
 				UserLog.addToLog(Constants.ERRORCODES.get("LogFileRead"));
 				log.info(Constants.ERRORCODES.get("LogFileRead"));
 
-				PrintWriter logOutput = new PrintWriter(Constants.TEMP_LOG_NAME);
+				PrintWriter logOutput = new PrintWriter(nodeID + Constants.TEMP_LOG_NAME);
 				logOutput.println(res.sysout);
 				logOutput.close();
 
@@ -304,6 +390,34 @@ public class ClusterMaster {
 			log.info(Constants.ERRORCODES.get("ClosedMasterConnection"));
 
 			sshMaster.disconnect();
+		}
+	}
+	
+	private void startUpSlaves()
+	{
+		for (String slaveIP : slaveAddress) {
+			
+			ClusterSlave slave = new ClusterSlave();
+			
+			if (slave.connectToSlave(slaveIP, JobSession.username, JobSession.password))
+			{
+				slave.transferAndRunScriptFile();
+				slave.disconnectSlave();
+			}
+		}
+	}
+	
+	private void fetchFromSlaves()
+	{
+		for (String slaveIP : slaveAddress) {
+			
+			ClusterSlave slave = new ClusterSlave();
+			
+			if (slave.connectToSlave(slaveIP, JobSession.username, JobSession.password))
+			{
+				slave.readLogFile();
+				slave.disconnectSlave();
+			}
 		}
 	}
 }
