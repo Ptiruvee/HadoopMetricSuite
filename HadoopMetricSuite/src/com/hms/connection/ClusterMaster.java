@@ -61,8 +61,7 @@ public class ClusterMaster {
 		} catch (Exception e) {
 
 			UserLog.addToLog(Constants.ERRORCODES.get("FailedMasterConnection"));
-			log.error("Master connection exception");
-			log.error(e);
+			log.error("Master connection exception", e);
 
 			return false;
 		} 
@@ -98,11 +97,9 @@ public class ClusterMaster {
 				log.info(Constants.ERRORCODES.get("FailedMasterSlaveListFetch"));
 			}
 		} catch (TaskExecFailException e) {
-			log.error("Slave list exception");
-			log.error(e);
+			log.error("Slave list exception", e);
 		} catch (Exception e) {
-			log.error("Slave list exception");
-			log.error(e);
+			log.error("Slave list exception", e);
 		} 
 
 		return false;
@@ -143,11 +140,9 @@ public class ClusterMaster {
 				log.info(Constants.ERRORCODES.get("ScriptExecutionFailure"));
 			}
 		} catch (TaskExecFailException e) {
-			log.error("Master script execution exception");
-			log.error(e);
+			log.error("Master script execution exception", e);
 		} catch (Exception e) {
-			log.error("Master script execution exception");
-			log.error(e);
+			log.error("Master script execution exception", e);
 		} 
 	}
 	
@@ -181,11 +176,9 @@ public class ClusterMaster {
 				log.info(Constants.ERRORCODES.get("ScriptProcessIDFetchFailure"));
 			}
 		} catch (TaskExecFailException e) {
-			log.error("Master script execution exception");
-			log.error(e);
+			log.error("Master script execution exception", e);
 		} catch (Exception e) {
-			log.error("Master script execution exception");
-			log.error(e);
+			log.error("Master script execution exception", e);
 		} 
 	}
 
@@ -206,8 +199,7 @@ public class ClusterMaster {
 		}
 		catch (Exception e)
 		{
-			log.error("Master script execution exception");
-			log.error(e);
+			log.error("Master script execution exception", e);
 		}
 	}
 
@@ -244,11 +236,9 @@ public class ClusterMaster {
 				log.info(Constants.ERRORCODES.get("JobCannotRun"));
 			}
 		} catch (TaskExecFailException e) {
-			log.error("Job execution exception");
-			log.error(e);
+			log.error("Job execution exception", e);
 		} catch (Exception e) {
-			log.error("Job execution exception");
-			log.error(e);
+			log.error("Job execution exception", e);
 		}
 		
 		JobSession.endTime = fetchTime();
@@ -281,11 +271,9 @@ public class ClusterMaster {
 				return "" + currentDate.getTime();
 			}
 		} catch (TaskExecFailException e) {
-			log.error("Start date fetch exception");
-			log.error(e);
+			log.error("Start date fetch exception", e);
 		} catch (Exception e) {
-			log.error("Start date fetch exception");
-			log.error(e);
+			log.error("Start date fetch exception", e);
 		}
 		
 		Date currentDate = new Date();
@@ -316,11 +304,9 @@ public class ClusterMaster {
 				log.info(Constants.ERRORCODES.get("ScriptKillFailure"));
 			}
 		} catch (TaskExecFailException e) {
-			log.error("Script termination exception");
-			log.error(e);
+			log.error("Script termination exception", e);
 		} catch (Exception e) {
-			log.error("Script termination exception");
-			log.error(e);
+			log.error("Script termination exception", e);
 		}
 	}
 
@@ -372,11 +358,9 @@ public class ClusterMaster {
 				log.info(Constants.ERRORCODES.get("LogFileNoRead"));
 			}
 		} catch (TaskExecFailException e) {
-			log.error("Read log file exception");
-			log.error(e);
+			log.error("Read log file exception", e);
 		} catch (Exception e) {
-			log.error("Read log file exception");
-			log.error(e);
+			log.error("Read log file exception", e);
 		}
 
 		return false;
@@ -397,6 +381,12 @@ public class ClusterMaster {
 	{
 		for (String slaveIP : slaveAddress) {
 			
+			//Avoid master IP
+			if (slaveIP.equalsIgnoreCase(nodeID))
+			{
+				continue;
+			}
+			
 			ClusterSlave slave = new ClusterSlave();
 			
 			if (slave.connectToSlave(slaveIP, JobSession.username, JobSession.password))
@@ -410,6 +400,12 @@ public class ClusterMaster {
 	private void fetchFromSlaves()
 	{
 		for (String slaveIP : slaveAddress) {
+			
+			//Avoid master IP
+			if (slaveIP.equalsIgnoreCase(nodeID))
+			{
+				continue;
+			}
 			
 			ClusterSlave slave = new ClusterSlave();
 			

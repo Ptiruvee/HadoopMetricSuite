@@ -1,5 +1,6 @@
 package com.hms.common;
 
+import java.util.HashMap;
 import java.util.Map;
 
 public class JobSession {
@@ -16,5 +17,5 @@ public class JobSession {
 	public static String endTime;
 	
 	//Slave
-	public static Map<String, String> processIDOfSlaves;
+	public static Map<String, String> processIDOfSlaves = new HashMap<String, String>();
 }

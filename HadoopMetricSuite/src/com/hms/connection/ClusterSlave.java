@@ -58,8 +58,7 @@ public class ClusterSlave {
 		} catch (Exception e) {
 
 			UserLog.addToLog(Constants.ERRORCODES.get("FailedSlaveConnection"));
-			log.error("Slave connection exception");
-			log.error(e);
+			log.error("Slave connection exception", e);
 
 			return false;
 		} 
@@ -69,8 +68,8 @@ public class ClusterSlave {
 	{
 		if (sshSlave == null)
 		{
-			UserLog.addToLog(Constants.ERRORCODES.get("NoMasterConnection"));
-			log.error(Constants.ERRORCODES.get("NoMasterConnection"));
+			UserLog.addToLog(Constants.ERRORCODES.get("NoSlaveConnection"));
+			log.error(Constants.ERRORCODES.get("NoSlaveConnection"));
 		}
 
 		try {
@@ -100,11 +99,9 @@ public class ClusterSlave {
 				log.info(Constants.ERRORCODES.get("ScriptExecutionFailure"));
 			}
 		} catch (TaskExecFailException e) {
-			log.error("Slave script execution exception");
-			log.error(e);
+			log.error("Slave script execution exception", e);
 		} catch (Exception e) {
-			log.error("Slave script execution exception");
-			log.error(e);
+			log.error("Slave script execution exception", e);
 		} 
 	}
 	
@@ -138,11 +135,9 @@ public class ClusterSlave {
 				log.info(Constants.ERRORCODES.get("ScriptProcessIDFetchFailure"));
 			}
 		} catch (TaskExecFailException e) {
-			log.error("Slave script execution exception");
-			log.error(e);
+			log.error("Slave script execution exception", e);
 		} catch (Exception e) {
-			log.error("Slave script execution exception");
-			log.error(e);
+			log.error("Slave script execution exception", e);
 		} 
 	}
 
@@ -170,11 +165,9 @@ public class ClusterSlave {
 				log.info(Constants.ERRORCODES.get("ScriptKillFailure"));
 			}
 		} catch (TaskExecFailException e) {
-			log.error("Script termination exception");
-			log.error(e);
+			log.error("Script termination exception", e);
 		} catch (Exception e) {
-			log.error("Script termination exception");
-			log.error(e);
+			log.error("Script termination exception", e);
 		}
 	}
 
@@ -224,11 +217,9 @@ public class ClusterSlave {
 				log.info(Constants.ERRORCODES.get("LogFileNoRead"));
 			}
 		} catch (TaskExecFailException e) {
-			log.error("Read log file exception");
-			log.error(e);
+			log.error("Read log file exception", e);
 		} catch (Exception e) {
-			log.error("Read log file exception");
-			log.error(e);
+			log.error("Read log file exception", e);
 		}
 
 		return false;
