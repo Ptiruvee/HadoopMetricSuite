@@ -42,6 +42,9 @@ public class Constants {
         aMap.put("ScriptProcessIDFetchSuccess", "Got the process id of the script for later termination purpose...");
         aMap.put("ScriptProcessIDFetchFailure", "Unable to fetch process id of the scrip and so it will run indefintly in the background!");
         
+        aMap.put("DBMasterInsertionError", "Unable to insert data into the database!");
+        aMap.put("DBSlaveInsertionError", "Unable to insert data into the database!");
+        
         ERRORCODES = Collections.unmodifiableMap(aMap);
     }
     

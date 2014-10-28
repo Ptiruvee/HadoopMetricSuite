@@ -16,11 +16,14 @@ import org.apache.logging.log4j.core.Logger;
 import com.hms.common.Constants;
 import com.hms.common.JobSession;
 import com.hms.common.UserLog;
+import com.hms.database.DatabaseManager;
 
 public class ClusterSlave {
 
 	private SSHExec sshSlave = null;
 	private String nodeID;
+	
+	private DatabaseManager dbManager = new DatabaseManager();
 
 	static final Logger log = (Logger) LogManager.getLogger(ClusterSlave.class.getName());
 
@@ -183,7 +186,18 @@ public class ClusterSlave {
 
 		if (readCPULog())
 		{
-			//Insert into database
+			try
+			{
+				dbManager.getConnection();
+				dbManager.insertIntoPlatformMetrics(nodeID, nodeID + Constants.TEMP_LOG_NAME);
+			}
+			catch (Exception e)
+			{
+				UserLog.addToLog(Constants.ERRORCODES.get("DBSlaveInsertionError"));
+				log.error(Constants.ERRORCODES.get("DBSlaveInsertionError"));
+			}
+			
+			dbManager.closeConnection();
 		}
 	}
 

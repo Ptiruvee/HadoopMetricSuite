@@ -11,6 +11,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 
+import com.hms.common.JobSession;
+
 /**
  * @author pratyushatiruveedhula
  * 
@@ -36,6 +38,18 @@ public class DatabaseManager {
 		} catch (SQLException e) {
 			System.err.println(e.getMessage());
 			throw e;
+		}
+	}
+	
+	public void closeConnection()
+	{
+		try
+		{
+			connection.close();
+		}
+		catch(Exception e)
+		{
+			System.err.println(e.getMessage());
 		}
 	}
 
@@ -95,8 +109,9 @@ public class DatabaseManager {
 	 */
 	public void insertIntoJobConfig() throws SQLException {
 		try {
+			String values = "'" + JobSession.jobID + "','" + JobSession.nodes + "','" + JobSession.datasize +"','" + JobSession.startTime +"','" + JobSession.endTime +"'";
 			Statement stmt = connection.createStatement();
-			stmt.executeUpdate("INSERT INTO JobConfig (JobId, Nodes, DataSize, StartTime, EndTime) VALUES('1','2','8','1','1')");
+			stmt.executeUpdate("INSERT INTO JobConfig (JobId, Nodes, DataSize, StartTime, EndTime) VALUES(" + values +")");
 			connection.commit();
 		} catch (SQLException e) {
 			// connection close failed.
@@ -108,14 +123,13 @@ public class DatabaseManager {
 	/**
 	 * @throws IOException
 	 */
-	public void insertIntoPlatformMetrics() throws IOException {
+	public void insertIntoPlatformMetrics(String nodeID, String path) throws IOException {
 		try {
 			BufferedReader bufferReadForFile = new BufferedReader(
-					new FileReader("dat/Log.txt"));
+					new FileReader(path));
 			try {
 				String line = bufferReadForFile.readLine();
-				int jobID = 1;
-				int time = 1;
+				String[] lineContent;
 				String query = null;
 				Statement stmt= connection.createStatement();
 				while (line != null) {
@@ -123,11 +137,20 @@ public class DatabaseManager {
 						line = bufferReadForFile.readLine();
 						continue;
 					}
+					
+					lineContent = line.split(" ");
+					
+					if (lineContent.length != 2)
+					{
+						line = bufferReadForFile.readLine();
+						continue;
+					}
+					
 					query = "INSERT INTO PlatformMetrics VALUES ("
-							+ Integer.toString(time++) + ","
-							+ Integer.toString(jobID) + ","
-							+ Float.parseFloat(line.replace("%", ""))
-							+ ", 0, 0, 0, 0" + ")";
+							+ lineContent[0] + ","
+							+ JobSession.jobID + ","
+							+ Float.parseFloat(lineContent[1])
+							+ ", 0, 0, 0,'" + nodeID + "')";
 					stmt.addBatch(query);
 					line = bufferReadForFile.readLine();
 				}

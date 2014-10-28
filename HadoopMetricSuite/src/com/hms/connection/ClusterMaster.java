@@ -17,6 +17,7 @@ import org.apache.logging.log4j.core.Logger;
 import com.hms.common.Constants;
 import com.hms.common.JobSession;
 import com.hms.common.UserLog;
+import com.hms.database.DatabaseManager;
 
 public class ClusterMaster {
 
@@ -24,6 +25,8 @@ public class ClusterMaster {
 	private String[] slaveAddress = null;
 	private String scriptProcessID = null;
 	private String nodeID;
+	
+	private DatabaseManager dbManager = new DatabaseManager();
 
 	static final Logger log = (Logger) LogManager.getLogger(ClusterMaster.class.getName());
 
@@ -319,10 +322,26 @@ public class ClusterMaster {
 		}
 		
 		killScriptRun();
+		
+		JobSession.jobID = "" + Math.random();
+		JobSession.nodes = slaveAddress.length;
+		JobSession.datasize = 100;
 
 		if (readCPULog())
 		{
-			//Insert into database
+			try
+			{
+				dbManager.getConnection();
+				dbManager.insertIntoJobConfig();
+				dbManager.insertIntoPlatformMetrics(nodeID, nodeID + Constants.TEMP_LOG_NAME);
+			}
+			catch (Exception e)
+			{
+				UserLog.addToLog(Constants.ERRORCODES.get("DBMasterInsertionError"));
+				log.error(Constants.ERRORCODES.get("DBMasterInsertionError"));
+			}
+			
+			dbManager.closeConnection();
 		}
 		
 		fetchFromSlaves();
