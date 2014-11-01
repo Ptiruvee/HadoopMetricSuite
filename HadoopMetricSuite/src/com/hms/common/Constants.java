@@ -87,4 +87,9 @@ public class Constants {
 
 	//Boundary
 	public static final int MAXIMUM_SLAVES = 100;
+	
+	//User interface
+	public static final String APPLICATION_TITLE = "Hadoop Metrics Suite";
+	public static final int MINIMUM_WIDTH = 500;
+	public static final int MINIMUM_HEIGHT = 500;
 }

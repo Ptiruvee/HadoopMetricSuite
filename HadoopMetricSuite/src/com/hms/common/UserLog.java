@@ -12,6 +12,8 @@ public class UserLog {
 	
 	public static String getUserLog()
 	{
-		return logMessage.toString();
+		String message = logMessage.toString();
+		logMessage.setLength(0);
+		return message;
 	}
 }
