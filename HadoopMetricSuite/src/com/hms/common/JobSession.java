@@ -6,6 +6,7 @@ import java.util.Map;
 public class JobSession {
 
 	//User account
+	public static String masterIP;
 	public static String username;
 	public static String password;
 	

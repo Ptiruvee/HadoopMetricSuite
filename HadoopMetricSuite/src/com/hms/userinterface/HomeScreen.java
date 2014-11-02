@@ -1,7 +1,6 @@
 package com.hms.userinterface;
 
 import org.eclipse.swt.SWT;
-import org.eclipse.swt.custom.BusyIndicator;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
@@ -14,6 +13,7 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+import com.hms.common.JobSession;
 import com.hms.common.UserLog;
 import com.hms.connection.ClusterMaster;
 
@@ -23,23 +23,29 @@ public class HomeScreen {
 	private Text textIPAddr;
 	private Text textUsername;
 	private Text textPassword;
-	
+	private Button btnOk;
+	private Button btnReset;
+	private boolean shallProceed = false;
+	private String username;
+	private String password;
+	private String ipAddress;
+
 	public void displayHome()
 	{
 		Display display = Display.getDefault();
-		
+
 		shell = new Shell();
 		shell.setMinimumSize(500, 500);
-		shell.setText("SWT Application");
+		shell.setText("Hadoop Metrics Suite");
 		shell.setLayout(new FormLayout());
-		
+
 		Label lblIPAddress = new Label(shell, SWT.NONE);
 		FormData fd_lblIPAddress = new FormData();
 		fd_lblIPAddress.top = new FormAttachment(34);
 		fd_lblIPAddress.left = new FormAttachment(25);
 		lblIPAddress.setLayoutData(fd_lblIPAddress);
 		lblIPAddress.setText("IP Address");
-		
+
 		textIPAddr = new Text(shell, SWT.BORDER);
 		FormData fd_textIPAddr = new FormData();
 		fd_textIPAddr.width = 150;
@@ -47,14 +53,14 @@ public class HomeScreen {
 		fd_textIPAddr.top = new FormAttachment(lblIPAddress, 0, SWT.CENTER);
 		fd_textIPAddr.left = new FormAttachment(lblIPAddress, 20);
 		textIPAddr.setLayoutData(fd_textIPAddr);
-		
+
 		Label lblUsername = new Label(shell, SWT.NONE);
 		FormData fd_lblUsername = new FormData();
 		fd_lblUsername.top = new FormAttachment(lblIPAddress, 30);
 		fd_lblUsername.left = new FormAttachment(25);
 		lblUsername.setLayoutData(fd_lblUsername);
 		lblUsername.setText("Username");
-		
+
 		textUsername = new Text(shell, SWT.BORDER);
 		FormData fd_textUsername = new FormData();
 		fd_textUsername.width = 150;
@@ -62,14 +68,14 @@ public class HomeScreen {
 		fd_textUsername.left = new FormAttachment(lblIPAddress, 20);
 		fd_textUsername.top = new FormAttachment(lblUsername, 0, SWT.CENTER);
 		textUsername.setLayoutData(fd_textUsername);
-		
+
 		Label lblPassword = new Label(shell, SWT.NONE);
 		FormData fd_lblPassword = new FormData();
 		fd_lblPassword.top = new FormAttachment(lblUsername, 30);
 		fd_lblPassword.left = new FormAttachment(25);
 		lblPassword.setLayoutData(fd_lblPassword);
 		lblPassword.setText("Password");
-		
+
 		textPassword = new Text(shell, SWT.BORDER | SWT.PASSWORD);
 		FormData fd_textPassword = new FormData();
 		fd_textPassword.width = 150;
@@ -77,8 +83,8 @@ public class HomeScreen {
 		fd_textPassword.top = new FormAttachment(lblPassword, 0, SWT.CENTER);
 		fd_textPassword.left = new FormAttachment(lblIPAddress, 20);
 		textPassword.setLayoutData(fd_textPassword);
-		
-		Button btnOk = new Button(shell, SWT.NONE);
+
+		btnOk = new Button(shell, SWT.NONE);
 		FormData fd_btnOk = new FormData();
 		fd_btnOk.width = 75;
 		fd_btnOk.height = 20;
@@ -88,31 +94,25 @@ public class HomeScreen {
 		btnOk.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
-				
-				BusyIndicator.showWhile(Display.getDefault(), new Runnable(){
 
-				    public void run(){
-				    	
-				    	ClusterMaster master = new ClusterMaster();
-				    	
-				    	if (master.connectToMaster(textIPAddr.getText(), textUsername.getText(), textPassword.getText()))
-				    	{
-				    		master.disconnectMaster();
-				    	}
-				    	else
-				    	{
-				    		MessageBox messageBox = new MessageBox(shell, SWT.ICON_WARNING | SWT.IGNORE);
-				    		messageBox.setText("Warning");
-				    		messageBox.setMessage(UserLog.getUserLog());
-				    		messageBox.open();
-				    	}
-				    }
-				    });
+				setWidgetEnabled(false);
+				
+				ipAddress = textIPAddr.getText();
+				username = textUsername.getText();
+				password = textPassword.getText();
+
+				Thread checkDetailsThread = new Thread(new Runnable() {
+					public void run()
+					{
+						checkDetails();
+						updateUI();
+					}});  
+				checkDetailsThread.start();
 			}
 		});
 		btnOk.setText("Ok");
-		
-		Button btnReset = new Button(shell, SWT.NONE);
+
+		btnReset = new Button(shell, SWT.NONE);
 		FormData fd_btnReset = new FormData();
 		fd_btnReset.right = new FormAttachment(textPassword, 0, SWT.RIGHT);
 		fd_btnReset.height = 20;
@@ -122,7 +122,7 @@ public class HomeScreen {
 		btnReset.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
-				
+
 				textIPAddr.setText("");
 				textUsername.setText("");
 				textPassword.setText("");
@@ -137,6 +137,54 @@ public class HomeScreen {
 				display.sleep();
 		}
 		display.dispose();
+	}
+
+	private void checkDetails()
+	{
+		ClusterMaster master = new ClusterMaster();
+
+		if (master.connectToMaster(ipAddress, username, password))
+		{
+			master.disconnectMaster();
+
+			JobSession.masterIP = ipAddress;
+			JobSession.username = username;
+			JobSession.password = password;
+
+			shallProceed = true;
+		}
+	}
+
+	private void updateUI()
+	{
+		Display.getDefault().syncExec(new Runnable(){
+
+			public void run(){
+
+				if (shallProceed)
+				{
+					shell.setVisible(false);
+
+					ConfigurationScreen config = new ConfigurationScreen();
+					config.displayConfigScreen("Experiment 1");
+				}
+				else
+				{
+					MessageBox messageBox = new MessageBox(shell, SWT.ICON_WARNING | SWT.IGNORE);
+					messageBox.setText("Warning");
+					messageBox.setMessage(UserLog.getUserLog());
+					messageBox.open();
+				}
+
+				setWidgetEnabled(true);
+			}
+		});
+	}
+
+	private void setWidgetEnabled(boolean enabled)
+	{
+		btnOk.setEnabled(enabled);
+		btnReset.setEnabled(enabled);
 	}
 }
 

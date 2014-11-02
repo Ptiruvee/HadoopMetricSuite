@@ -63,8 +63,15 @@ public class Constants {
     //Application name
     public static final String WORD_COUNT = "WordCount";
     public static final String SORT = "Sort";
-    public static final String Grep = "Grep";
-    public static final String Dedup = "Dedup";
+    public static final String GREP = "Grep";
+    public static final String DEDUP = "Dedup";
+    
+    //Platform metrics
+    public static final String CPU = "Cpu";
+    public static final String CPU_PROCESS = "Cpu per process";
+    public static final String DISK = "Disk";
+    public static final String MEMORY = "Memory";
+    public static final String NETWORK = "Network";
     
 	//User path
 	public static final String USER_PATH = "/home/ec2-user/";
