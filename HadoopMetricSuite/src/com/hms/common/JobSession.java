@@ -10,6 +10,9 @@ public class JobSession {
 	public static String username;
 	public static String password;
 	
+	//Job details
+	public static int retrievalFrequency = 1;
+	
 	//JobConfig table model
 	public static String jobID;
 	public static int nodes;

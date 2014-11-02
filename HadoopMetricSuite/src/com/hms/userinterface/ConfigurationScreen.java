@@ -282,7 +282,6 @@ public class ConfigurationScreen {
 			// master.fetchSlaveList();
 			// master.transferAndRunScriptFile();
 			// master.runApplicationJob(Constants.WORD_COUNT);
-			//master.trial();
 			master.disconnectMaster();
 		}
 
@@ -311,6 +310,8 @@ public class ConfigurationScreen {
 			log.info(Integer.parseInt(text_1.getText()));
 			log.info(Integer.parseInt(text_2.getText()));
 			log.info(Integer.parseInt(text_3.getText()));
+			
+			JobSession.retrievalFrequency = Integer.parseInt(text_2.getText());
 
 			isInputCorrect = true;
 		} catch (Exception e) {

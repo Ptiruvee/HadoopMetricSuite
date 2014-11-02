@@ -85,7 +85,7 @@ public class ClusterSlave {
 			CustomTask scriptPermission = new ExecCommand("chmod 755 " + Constants.USER_PATH + Constants.SCRIPT_NAME);
 			sshSlave.exec(scriptPermission);
 
-			CustomTask shellMaster = new ExecShellScript(Constants.USER_PATH.substring(0, Constants.USER_PATH.length()-1), "./" + Constants.SCRIPT_NAME + " >> dummy.txt &", "");
+			CustomTask shellMaster = new ExecShellScript(Constants.USER_PATH.substring(0, Constants.USER_PATH.length()-1), "./" + Constants.SCRIPT_NAME + " >> dummy.txt &", "" + JobSession.retrievalFrequency);
 
 			Result resMaster = sshSlave.exec(shellMaster);
 
