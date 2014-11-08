@@ -60,6 +60,18 @@ public class Constants {
         APPLICATIONTYPES = Collections.unmodifiableMap(aMap);
     }
     
+  //Application code
+    public static final Map<String, String> APPLICATIONCODES;
+    static {
+        Map<String, String> aMap = new HashMap<String, String>(); 
+        aMap.put("WordCount", "WC");
+        aMap.put("Sort", "SORT");
+        aMap.put("Grep", "GREP");
+        aMap.put("Dedup", "DEDUP");
+        
+        APPLICATIONCODES = Collections.unmodifiableMap(aMap);
+    }
+    
     //Application name
     public static final String WORD_COUNT = "WordCount";
     public static final String SORT = "Sort";
@@ -84,8 +96,11 @@ public class Constants {
 	public static final String JAR_PATH = "applications/";
 	
 	//Log
-	public static final String TEMP_LOG_NAME = "temp.txt";
+	public static final String TEMP_LOG_NAME = "_temp_";
 	public static final String CPU_LOG_NAME = "hms_cpu.txt";
+	public static final String DISK_LOG_NAME = "hms_disk.txt";
+	public static final String MEM_LOG_NAME = "hms_memory.txt";
+	public static final String NET_LOG_NAME = "hms_network.txt";
 	
 	//Hadoop version & path
 	public static final String HADOOP_VERSION = "hadoop-2.5.0";

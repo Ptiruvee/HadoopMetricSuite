@@ -12,6 +12,8 @@ public class JobSession {
 	
 	//Job details
 	public static int retrievalFrequency = 1;
+	public static String applicationType;
+	public static int expectedRuns;
 	
 	//JobConfig table model
 	public static String jobID;
