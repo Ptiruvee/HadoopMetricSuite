@@ -1,5 +1,7 @@
 package com.hms.userinterface;
 
+import java.util.ArrayList;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Logger;
 import org.eclipse.swt.SWT;
@@ -22,6 +24,7 @@ import com.hms.common.Constants;
 import com.hms.common.JobSession;
 import com.hms.common.UserLog;
 import com.hms.connection.ClusterMaster;
+import com.hms.database.DatabaseManager;
 
 public class ConfigurationScreen {
 
@@ -46,7 +49,7 @@ public class ConfigurationScreen {
 		shlHadoopMetricsSuite = new Shell();
 		shlHadoopMetricsSuite.setMinimumSize(new Point(1100, 600));
 		shlHadoopMetricsSuite.setSize(450, 300);
-		shlHadoopMetricsSuite.setText("Hadoop Metrics Suite");
+		shlHadoopMetricsSuite.setText(Constants.APPLICATION_TITLE);
 		shlHadoopMetricsSuite.setLayout(new FormLayout());
 
 		text = new Text(shlHadoopMetricsSuite, SWT.BORDER);
@@ -196,6 +199,26 @@ public class ConfigurationScreen {
 		btnShowGraph.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
+				
+				ArrayList<String> oldJobs = new ArrayList<>();
+				
+				try
+				{
+					DatabaseManager dbManager = new DatabaseManager();
+					dbManager.getConnection();
+					oldJobs = dbManager.getOldJobs();
+					dbManager.closeConnection();
+				}
+				catch (Exception e)
+				{
+					System.out.println("Exception inside experiment count fetch");
+					e.printStackTrace();
+				}
+				
+				shlHadoopMetricsSuite.setVisible(false);
+				
+				GraphDisplayScreen graph = new GraphDisplayScreen();
+				graph.showGraph(oldJobs);
 			}
 		});
 		FormData fd_btnShowGraph = new FormData();
@@ -281,7 +304,11 @@ public class ConfigurationScreen {
 				JobSession.password)) {
 			// master.fetchSlaveList();
 			// master.transferAndRunScriptFile();
-			// master.runApplicationJob(Constants.WORD_COUNT);
+			
+			for (int i = 1; i < JobSession.expectedRuns; i++) {
+				// master.runApplicationJob(Constants.WORD_COUNT);
+			}
+			
 			master.disconnectMaster();
 		}
 
@@ -307,11 +334,14 @@ public class ConfigurationScreen {
 		boolean isInputCorrect = false;
 
 		try {
-			log.info(Integer.parseInt(text_1.getText()));
+			log.info(Double.parseDouble(text_1.getText()));
 			log.info(Integer.parseInt(text_2.getText()));
 			log.info(Integer.parseInt(text_3.getText()));
 			
+			JobSession.applicationType = combo.getText();
+			JobSession.datasize = Double.parseDouble(text_1.getText());
 			JobSession.retrievalFrequency = Integer.parseInt(text_2.getText());
+			JobSession.expectedRuns = Integer.parseInt(text_3.getText());
 
 			isInputCorrect = true;
 		} catch (Exception e) {

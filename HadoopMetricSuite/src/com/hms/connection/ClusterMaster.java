@@ -323,17 +323,18 @@ public class ClusterMaster {
 		
 		killScriptRun();
 		
-		JobSession.jobID = "" + Math.random();
 		JobSession.nodes = slaveAddress.length;
-		JobSession.datasize = 100;
-
-		if (readCPULog())
+		
+		if (readLog(Constants.CPU_LOG_NAME) && readLog(Constants.DISK_LOG_NAME) && readLog(Constants.MEM_LOG_NAME) && readLog(Constants.NET_LOG_NAME))
 		{
 			try
 			{
 				dbManager.getConnection();
+				
+				JobSession.jobID = (dbManager.getExperimentCount() + 1) + "#" + Constants.APPLICATIONCODES.get(JobSession.applicationType);
+				
 				dbManager.insertIntoJobConfig();
-				dbManager.insertIntoPlatformMetrics(nodeID, nodeID + Constants.TEMP_LOG_NAME);
+				dbManager.insertIntoPlatformMetrics(nodeID);
 			}
 			catch (Exception e)
 			{
@@ -347,7 +348,7 @@ public class ClusterMaster {
 		fetchFromSlaves();
 	}
 
-	private boolean readCPULog()
+	private boolean readLog(String logFileName)
 	{
 		if (sshMaster == null)
 		{
@@ -356,7 +357,7 @@ public class ClusterMaster {
 		}
 
 		try {
-			CustomTask grep = new ExecCommand("cat " + Constants.USER_PATH + Constants.CPU_LOG_NAME);
+			CustomTask grep = new ExecCommand("cat " + Constants.USER_PATH + logFileName);
 
 			Result res = sshMaster.exec(grep);
 
@@ -365,7 +366,7 @@ public class ClusterMaster {
 				UserLog.addToLog(Constants.ERRORCODES.get("LogFileRead"));
 				log.info(Constants.ERRORCODES.get("LogFileRead"));
 
-				PrintWriter logOutput = new PrintWriter(nodeID + Constants.TEMP_LOG_NAME);
+				PrintWriter logOutput = new PrintWriter(nodeID + Constants.TEMP_LOG_NAME + logFileName);
 				logOutput.println(res.sysout);
 				logOutput.close();
 
