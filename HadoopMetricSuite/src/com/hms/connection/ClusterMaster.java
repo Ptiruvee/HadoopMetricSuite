@@ -126,7 +126,7 @@ public class ClusterMaster {
 			CustomTask scriptPermission = new ExecCommand("chmod 755 " + Constants.USER_PATH + Constants.SCRIPT_NAME);
 			sshMaster.exec(scriptPermission);
 
-			CustomTask shellMaster = new ExecShellScript(Constants.USER_PATH.substring(0, Constants.USER_PATH.length()-1), "./" + Constants.SCRIPT_NAME + " >> dummy.txt &", "" + JobSession.retrievalFrequency);
+			CustomTask shellMaster = new ExecShellScript(Constants.USER_PATH.substring(0, Constants.USER_PATH.length()-1), "./" + Constants.SCRIPT_NAME + " " + JobSession.retrievalFrequency + " >> dummy.txt &", "");
 
 			Result resMaster = sshMaster.exec(shellMaster);
 
@@ -184,6 +184,97 @@ public class ClusterMaster {
 			log.error("Master script execution exception", e);
 		} 
 	}
+	
+	private void transferDataGenerationJARFile()
+	{
+		if (sshMaster == null)
+		{
+			UserLog.addToLog(Constants.ERRORCODES.get("NoMasterConnection"));
+			log.error(Constants.ERRORCODES.get("NoMasterConnection"));
+		}
+
+		try
+		{
+			sshMaster.uploadSingleDataToServer(Constants.JAR_PATH + Constants.APPLICATIONTYPES.get("DataGen"), Constants.USER_PATH + Constants.APPLICATIONTYPES.get("DataGen"));
+			sshMaster.uploadSingleDataToServer("dat/OSWI.txt", Constants.USER_PATH);
+
+			UserLog.addToLog(Constants.ERRORCODES.get("JarTransferSuccess"));
+			log.info(Constants.ERRORCODES.get("JarTransferSuccess"));
+		}
+		catch (Exception e)
+		{
+			log.error("Master data generation jar transfer execution exception", e);
+		}
+	}
+	
+	private void runDataGenerator()
+	{
+		if (sshMaster == null)
+		{
+			UserLog.addToLog(Constants.ERRORCODES.get("NoMasterConnection"));
+			log.error(Constants.ERRORCODES.get("NoMasterConnection"));
+		}
+		
+		try {
+			String applicationPath = Constants.USER_PATH + Constants.APPLICATIONTYPES.get("DataGen");
+
+			CustomTask runJob = new ExecCommand("java -jar " + applicationPath + " " + JobSession.datasize);
+			
+			UserLog.addToLog(Constants.ERRORCODES.get("JobAboutToRun"));
+			log.info(Constants.ERRORCODES.get("JobAboutToRun"));
+
+			Result res = sshMaster.exec(runJob);
+
+			if (res.isSuccess)
+			{
+				//Job started running
+			}                        
+			else
+			{
+				UserLog.addToLog(Constants.ERRORCODES.get("JobCannotRun"));
+				log.info(Constants.ERRORCODES.get("JobCannotRun"));
+			}
+		} catch (TaskExecFailException e) {
+			log.error("Job execution exception", e);
+		} catch (Exception e) {
+			log.error("Job execution exception", e);
+		}
+	}
+	
+	private void transferInputFilesToHDFS()
+	{
+		if (sshMaster == null)
+		{
+			UserLog.addToLog(Constants.ERRORCODES.get("NoMasterConnection"));
+			log.error(Constants.ERRORCODES.get("NoMasterConnection"));
+		}
+		
+		try {
+			String localPath = Constants.USER_PATH + "data/";
+			String hdfsCopyCmd = Constants.USER_PATH + Constants.HADOOP_VERSION + Constants.HADOOP_BIN + " fs -copyFromLocal " + localPath +  " /home/user/input/";
+
+			CustomTask runJob = new ExecCommand(hdfsCopyCmd);
+			
+			UserLog.addToLog(Constants.ERRORCODES.get("JobAboutToRun"));
+			log.info(Constants.ERRORCODES.get("JobAboutToRun"));
+
+			Result res = sshMaster.exec(runJob);
+
+			if (res.isSuccess)
+			{
+				//Job started running
+			}                        
+			else
+			{
+				UserLog.addToLog(Constants.ERRORCODES.get("JobCannotRun"));
+				log.info(Constants.ERRORCODES.get("JobCannotRun"));
+			}
+		} catch (TaskExecFailException e) {
+			log.error("Job execution exception", e);
+		} catch (Exception e) {
+			log.error("Job execution exception", e);
+		}
+	}
 
 	public void transferApplicationJARFile(String type)
 	{
@@ -202,7 +293,7 @@ public class ClusterMaster {
 		}
 		catch (Exception e)
 		{
-			log.error("Master script execution exception", e);
+			log.error("Master application jar transfer execution exception", e);
 		}
 	}
 
@@ -214,15 +305,23 @@ public class ClusterMaster {
 			log.error(Constants.ERRORCODES.get("NoMasterConnection"));
 		}
 		
+		transferDataGenerationJARFile();
+		runDataGenerator();
+		transferInputFilesToHDFS();
+		
 		startUpSlaves();
 		
 		JobSession.startTime = fetchTime();
 
 		try {
 			String hadoopPath = Constants.USER_PATH + Constants.HADOOP_VERSION + Constants.HADOOP_BIN + " jar ";
-			String applicationPath = Constants.USER_PATH + Constants.APPLICATIONTYPES.get(type);
+			String applicationPath = "/home/ec2-user/hadoop-2.5.0/share/hadoop/mapreduce/hadoop-mapreduce-examples-2.5.0.jar wordcount"; 
+					//Constants.USER_PATH + Constants.APPLICATIONTYPES.get(type);
 
-			CustomTask runJob = new ExecCommand(hadoopPath + applicationPath);
+			CustomTask runJob = new ExecCommand(hadoopPath + applicationPath + " /home/user/input/data/" + " /home/user/output/");
+			
+			UserLog.addToLog("Hadoop run command " + hadoopPath + applicationPath + " /home/user/input/data/" + " /home/user/output/");
+			log.info("Hadoop run command " + hadoopPath + applicationPath + " /home/user/input/data/" + " /home/user/output/");
 			
 			UserLog.addToLog(Constants.ERRORCODES.get("JobAboutToRun"));
 			log.info(Constants.ERRORCODES.get("JobAboutToRun"));
@@ -339,7 +438,7 @@ public class ClusterMaster {
 			catch (Exception e)
 			{
 				UserLog.addToLog(Constants.ERRORCODES.get("DBMasterInsertionError"));
-				log.error(Constants.ERRORCODES.get("DBMasterInsertionError"));
+				log.error(Constants.ERRORCODES.get("DBMasterInsertionError"), e);
 			}
 			
 			dbManager.closeConnection();
