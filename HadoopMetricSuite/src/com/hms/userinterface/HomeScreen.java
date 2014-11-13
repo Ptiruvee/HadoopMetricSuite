@@ -13,9 +13,11 @@ import org.eclipse.swt.widgets.MessageBox;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
+import com.hms.common.Constants;
 import com.hms.common.JobSession;
 import com.hms.common.UserLog;
 import com.hms.connection.ClusterMaster;
+import com.hms.database.DatabaseManager;
 
 public class HomeScreen {
 
@@ -36,7 +38,7 @@ public class HomeScreen {
 
 		shell = new Shell();
 		shell.setMinimumSize(500, 500);
-		shell.setText("Hadoop Metrics Suite");
+		shell.setText(Constants.APPLICATION_TITLE);
 		shell.setLayout(new FormLayout());
 
 		Label lblIPAddress = new Label(shell, SWT.NONE);
@@ -165,8 +167,23 @@ public class HomeScreen {
 				{
 					shell.setVisible(false);
 
+					int expNo = 0;
+					
+					try
+					{
+						DatabaseManager dbManager = new DatabaseManager();
+						dbManager.getConnection();
+						expNo = dbManager.getExperimentCount() + 1;
+						dbManager.closeConnection();
+					}
+					catch (Exception e)
+					{
+						System.out.println("Exception inside experiment count fetch");
+						e.printStackTrace();
+					}
+					
 					ConfigurationScreen config = new ConfigurationScreen();
-					config.displayConfigScreen("Experiment 1");
+					config.displayConfigScreen("Experiment " + expNo);
 				}
 				else
 				{

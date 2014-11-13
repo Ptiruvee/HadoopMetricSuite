@@ -302,11 +302,11 @@ public class ConfigurationScreen {
 
 		if (master.connectToMaster(JobSession.masterIP, JobSession.username,
 				JobSession.password)) {
-			// master.fetchSlaveList();
-			// master.transferAndRunScriptFile();
+			 master.fetchSlaveList();
+			 master.transferAndRunScriptFile();
 			
-			for (int i = 1; i < JobSession.expectedRuns; i++) {
-				// master.runApplicationJob(Constants.WORD_COUNT);
+			for (int i = 0; i < JobSession.expectedRuns; i++) {
+				 master.runApplicationJob(Constants.WORD_COUNT);
 			}
 			
 			master.disconnectMaster();
