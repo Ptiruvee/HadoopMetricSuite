@@ -38,8 +38,9 @@ public class DataGenerator {
 		int gbcount=0, mbcount=0;
 		gbcount = (int) ((gb*1024) / 2.6);
 		mbcount = (int) (mb/2.6);
-		for(int i=0;i< mbcount;i++ ) {
 		File target ;
+		for(int i=0;i< mbcount;i++ ) {
+		
 
 		try {
 			target = new File("data/data"+counter+".txt");
@@ -51,6 +52,18 @@ public class DataGenerator {
 		}
 
 		}
+		for(int i=0;i< gbcount;i++ ) {
+
+			try {
+				target = new File("data/data"+counter+".txt");
+				Files.copy(src.toPath(), target.toPath(), StandardCopyOption.REPLACE_EXISTING);
+				counter++;
+			} catch (IOException e) {
+				// TODO Auto-generated catch block
+				e.printStackTrace();
+			}
+
+			}
 	}
 
 	public static void main(String[] args) {
