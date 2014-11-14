@@ -91,7 +91,7 @@ public class DatabaseManager {
 			log.error("Database fetch exception", e);
 			throw e;
 		}
-		
+
 		writeDBToFile("dat/" + jobID + Constants.CPU +".tsv", cpu);
 		writeDBToFile("dat/" + jobID + Constants.DISK +".tsv", disk);
 		writeDBToFile("dat/" + jobID + Constants.MEMORY +".tsv", memory);
@@ -140,22 +140,22 @@ public class DatabaseManager {
 		readLogFile(nodeID + Constants.TEMP_LOG_NAME + Constants.DISK_LOG_NAME, Constants.DISK);
 		readLogFile(nodeID + Constants.TEMP_LOG_NAME + Constants.MEM_LOG_NAME, Constants.MEMORY);
 		readLogFile(nodeID + Constants.TEMP_LOG_NAME + Constants.NET_LOG_NAME, Constants.NETWORK);
-		
+
 		//List will be added with time from all logs and hence the trimming
 		time.subList(cpu.size(), cpu.size() * 4).clear();
-		
+
 		try {
 			String query = null;
 			Statement stmt= connection.createStatement();
-			
+
 			for (int i = 0; i < time.size(); i++) {
 				query = "INSERT INTO PlatformMetrics VALUES ("
 						+ time.get(i) + ","
 						+ "'" + JobSession.jobID + "',"
 						+ cpu.get(i) + ","
-						+ disk.get(i) + ","
 						+ memory.get(i) + ","
 						+ network.get(i) + ","
+						+ disk.get(i) + ","
 						+ "'" + nodeID + "')";
 				stmt.addBatch(query);
 			}
@@ -192,15 +192,26 @@ public class DatabaseManager {
 						continue;
 					}
 
-					if (Long.parseLong(lineContent[0]) >= Long.parseLong(JobSession.startTime) && Long.parseLong(lineContent[0]) <= Long.parseLong(JobSession.endTime))
+					try
 					{
-						time.add(lineContent[0]);
-						temp.add(lineContent[1]);
+						if (Long.parseLong(lineContent[0]) >= Long.parseLong(JobSession.startTime) && Long.parseLong(lineContent[0]) <= Long.parseLong(JobSession.endTime))
+						{
+							time.add(lineContent[0]);
+							temp.add(lineContent[1]);
+						}
+					}
+					catch (Exception e)
+					{
+						log.error("Here is the long input" + lineContent[0] + "*");
+						log.error("Here is the long input" + lineContent[1] + "*");
+						log.error("Start" + JobSession.startTime + "*");
+						log.error("End" + JobSession.endTime + "*");
+						log.error("Long format exception", e);
 					}
 
 					line = bufferReadForFile.readLine();
 				}
-				
+
 				if (type.equalsIgnoreCase(Constants.CPU))
 				{
 					cpu = temp;
@@ -230,11 +241,11 @@ public class DatabaseManager {
 		}
 
 	} 
-	
+
 	public int getExperimentCount()
 	{
 		int count = 0;
-		
+
 		try {
 			Statement statement = connection.createStatement();
 			ResultSet rs = statement
@@ -246,14 +257,14 @@ public class DatabaseManager {
 			// connection close failed.
 			log.error("Database fetch exception", e);
 		}
-		
+
 		return count;
 	}
-	
+
 	public ArrayList<String> getOldJobs()
 	{
 		ArrayList<String> temp = new ArrayList<>();
-		
+
 		try {
 			Statement statement = connection.createStatement();
 			ResultSet rs = statement
@@ -265,7 +276,7 @@ public class DatabaseManager {
 			// connection close failed.
 			log.error("Database fetch exception", e);
 		}
-		
+
 		return temp;
 	}
 }

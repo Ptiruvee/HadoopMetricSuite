@@ -116,4 +116,6 @@ public class Constants {
 	public static final String APPLICATION_TITLE = "Hadoop Metrics Suite";
 	public static final int MINIMUM_WIDTH = 500;
 	public static final int MINIMUM_HEIGHT = 500;
+	
+	public static final String DELIMITER = "_";
 }

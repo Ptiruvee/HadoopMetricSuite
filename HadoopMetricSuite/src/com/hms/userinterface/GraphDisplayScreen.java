@@ -84,12 +84,12 @@ public class GraphDisplayScreen {
 							line = br.readLine();
 						}
 						String htmlContent = sb.toString();
-						PrintWriter out = new PrintWriter("dat/" + combo.getText().split(" on ")[0].replace("#", "_") + combo_1.getText() + ".html");
-						out.print(htmlContent.replace("Template.tsv", combo.getText().split(" on ")[0].replace("#", "_") + combo_1.getText() + ".tsv"));
+						PrintWriter out = new PrintWriter("dat/" + combo.getText().split(" on ")[0] + combo_1.getText() + ".html");
+						out.print(htmlContent.replace("Template.tsv", combo.getText().split(" on ")[0] + combo_1.getText() + ".tsv"));
 						out.close();
 					} finally {
 						br.close();
-						File f = new File("./dat/" + combo.getText().split(" on ")[0].replace("#", "_") + combo_1.getText() + ".html");
+						File f = new File("./dat/" + combo.getText().split(" on ")[0] + combo_1.getText() + ".html");
 						browser.setUrl(f.getCanonicalPath());
 					}
 				}

@@ -430,7 +430,7 @@ public class ClusterMaster {
 			{
 				dbManager.getConnection();
 				
-				JobSession.jobID = (dbManager.getExperimentCount() + 1) + "#" + Constants.APPLICATIONCODES.get(JobSession.applicationType);
+				JobSession.jobID = (dbManager.getExperimentCount() + 1) + Constants.DELIMITER + Constants.APPLICATIONCODES.get(JobSession.applicationType);
 				
 				dbManager.insertIntoJobConfig();
 				dbManager.insertIntoPlatformMetrics(nodeID);
