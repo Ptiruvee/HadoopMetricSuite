@@ -94,6 +94,9 @@ public class Constants {
 	public static final String SCRIPT_PATH = "scripts/";
 	public static final String SCRIPT_NAME = "CPU.sh";
 	
+	//Data
+	public static final String GRAPH_DATA_PATH = "dat/graph/";
+	
 	//Application
 	public static final String JAR_PATH = "applications/";
 	
@@ -111,6 +114,7 @@ public class Constants {
 
 	//Boundary
 	public static final int MAXIMUM_SLAVES = 100;
+	public static final int MAXIMUM_DATA_VIEW = 60;
 	
 	//User interface
 	public static final String APPLICATION_TITLE = "Hadoop Metrics Suite";

@@ -1,13 +1,10 @@
 package com.hms.userinterface;
 
-import java.util.ArrayList;
-
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Logger;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
-import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -17,18 +14,15 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.MessageBox;
-import org.eclipse.swt.widgets.Shell;
 import org.eclipse.swt.widgets.Text;
 
 import com.hms.common.Constants;
 import com.hms.common.JobSession;
 import com.hms.common.UserLog;
 import com.hms.connection.ClusterMaster;
-import com.hms.database.DatabaseManager;
 
 public class ConfigurationScreen {
 
-	protected Shell shlHadoopMetricsSuite;
 	private Text text;
 	private Text text_1;
 	private Text text_2;
@@ -36,23 +30,15 @@ public class ConfigurationScreen {
 	private Combo combo;
 	private Combo combo_1;
 	private Button btnStart;
-	private Button btnShowGraph;
 	private Button btnReset;
 	private boolean shouldUpdateLog;
 
 	static final Logger log = (Logger) LogManager
 			.getLogger(ConfigurationScreen.class.getName());
 
-	public void displayConfigScreen(String experimentName) {
-		Display display = Display.getDefault();
+	public void displayConfigScreen(Composite parent, String experimentName) {
 
-		shlHadoopMetricsSuite = new Shell();
-		shlHadoopMetricsSuite.setMinimumSize(new Point(1100, 600));
-		shlHadoopMetricsSuite.setSize(450, 300);
-		shlHadoopMetricsSuite.setText(Constants.APPLICATION_TITLE);
-		shlHadoopMetricsSuite.setLayout(new FormLayout());
-
-		text = new Text(shlHadoopMetricsSuite, SWT.BORDER);
+		text = new Text(parent, SWT.BORDER);
 		text.setEditable(false);
 		FormData fd_text = new FormData();
 		fd_text.height = 400;
@@ -62,7 +48,7 @@ public class ConfigurationScreen {
 		fd_text.left = new FormAttachment(0, 494);
 		text.setLayoutData(fd_text);
 
-		Composite composite = new Composite(shlHadoopMetricsSuite, SWT.NONE);
+		Composite composite = new Composite(parent, SWT.NONE);
 		composite.setToolTipText("Seconds");
 		FormData fd_composite = new FormData();
 		fd_composite.height = 400;
@@ -99,7 +85,7 @@ public class ConfigurationScreen {
 		fd_lblNewLabel_2.top = new FormAttachment(lblEnterTheVolume, 41);
 		fd_lblNewLabel_2.left = new FormAttachment(lblNewLabel, 0, SWT.LEFT);
 		lblNewLabel_2.setLayoutData(fd_lblNewLabel_2);
-		lblNewLabel_2.setText("Frequency of retrieval");
+		lblNewLabel_2.setText("Frequency of retrieval (seconds)");
 
 		Label lblNewLabel_3 = new Label(composite, SWT.NONE);
 		FormData fd_lblNewLabel_3 = new FormData();
@@ -160,7 +146,7 @@ public class ConfigurationScreen {
 		fd_combo_1.left = new FormAttachment(combo, 0, SWT.LEFT);
 		combo_1.setLayoutData(fd_combo_1);
 
-		Label label = new Label(shlHadoopMetricsSuite, SWT.SEPARATOR
+		Label label = new Label(parent, SWT.SEPARATOR
 				| SWT.VERTICAL);
 		FormData fd_label = new FormData();
 		fd_label.height = 400;
@@ -168,7 +154,7 @@ public class ConfigurationScreen {
 		fd_label.top = new FormAttachment(composite, 0, SWT.TOP);
 		label.setLayoutData(fd_label);
 
-		btnStart = new Button(shlHadoopMetricsSuite, SWT.NONE);
+		btnStart = new Button(parent, SWT.NONE);
 		btnStart.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
@@ -190,44 +176,12 @@ public class ConfigurationScreen {
 			}
 		});
 		FormData fd_btnStart = new FormData();
-		fd_btnStart.top = new FormAttachment(composite, 44);
-		fd_btnStart.left = new FormAttachment(0, 336);
+		fd_btnStart.top = new FormAttachment(80);
+		fd_btnStart.left = new FormAttachment(35);
 		btnStart.setLayoutData(fd_btnStart);
 		btnStart.setText("Start");
 
-		btnShowGraph = new Button(shlHadoopMetricsSuite, SWT.NONE);
-		btnShowGraph.addSelectionListener(new SelectionAdapter() {
-			@Override
-			public void widgetSelected(SelectionEvent arg0) {
-				
-				ArrayList<String> oldJobs = new ArrayList<>();
-				
-				try
-				{
-					DatabaseManager dbManager = new DatabaseManager();
-					dbManager.getConnection();
-					oldJobs = dbManager.getOldJobs();
-					dbManager.closeConnection();
-				}
-				catch (Exception e)
-				{
-					System.out.println("Exception inside experiment count fetch");
-					e.printStackTrace();
-				}
-				
-				shlHadoopMetricsSuite.setVisible(false);
-				
-				GraphDisplayScreen graph = new GraphDisplayScreen();
-				graph.showGraph(oldJobs);
-			}
-		});
-		FormData fd_btnShowGraph = new FormData();
-		fd_btnShowGraph.bottom = new FormAttachment(btnStart, 0, SWT.BOTTOM);
-		fd_btnShowGraph.left = new FormAttachment(btnStart, 70);
-		btnShowGraph.setLayoutData(fd_btnShowGraph);
-		btnShowGraph.setText("Show graph");
-
-		btnReset = new Button(shlHadoopMetricsSuite, SWT.NONE);
+		btnReset = new Button(parent, SWT.NONE);
 		btnReset.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
@@ -241,18 +195,9 @@ public class ConfigurationScreen {
 		});
 		FormData fd_btnReset = new FormData();
 		fd_btnReset.top = new FormAttachment(btnStart, 0, SWT.TOP);
-		fd_btnReset.left = new FormAttachment(btnShowGraph, 90);
+		fd_btnReset.left = new FormAttachment(btnStart, 256);
 		btnReset.setLayoutData(fd_btnReset);
 		btnReset.setText("Reset");
-
-		shlHadoopMetricsSuite.open();
-		shlHadoopMetricsSuite.layout();
-		while (!shlHadoopMetricsSuite.isDisposed()) {
-			if (!display.readAndDispatch()) {
-				display.sleep();
-			}
-		}
-		display.dispose();
 	}
 
 	private void initiateHadoopJob() {
@@ -264,7 +209,7 @@ public class ConfigurationScreen {
 					setWidgetEnabled(true);
 
 					MessageBox messageBox = new MessageBox(
-							shlHadoopMetricsSuite, SWT.ICON_WARNING
+							Display.getDefault().getActiveShell(), SWT.ICON_WARNING
 									| SWT.IGNORE);
 					messageBox.setText("Warning");
 					messageBox
@@ -326,7 +271,6 @@ public class ConfigurationScreen {
 
 	private void setWidgetEnabled(boolean enabled) {
 		btnStart.setEnabled(enabled);
-		btnShowGraph.setEnabled(enabled);
 		btnReset.setEnabled(enabled);
 	}
 
