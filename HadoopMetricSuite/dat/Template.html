@@ -84,7 +84,7 @@
             .attr('class', 'd3-tip')
             .offset([-10, 0])
             .html(function(d) {
-                  return "<strong>Frequency:</strong> <span style='color:red'>" + d.frequency + "</span>";
+                  return "<strong>Utilisation:</strong> <span style='color:red'>" + d.frequency + "</span>";
                   })
                   
                   var svg = d3.select("body").append("svg")
@@ -102,17 +102,22 @@
                          svg.append("g")
                          .attr("class", "x axis")
                          .attr("transform", "translate(0," + height + ")")
-                         .call(xAxis);
+                         .call(xAxis)
+                         .append("text")
+                         .attr("y", 8)
+                         .attr("dy", ".71em")
+                         .style("text-anchor", "end")
+                         .text("Time");
                          
                          svg.append("g")
                          .attr("class", "y axis")
                          .call(yAxis)
                          .append("text")
                          .attr("transform", "rotate(-90)")
-                         .attr("y", 6)
+                         .attr("y", 3)
                          .attr("dy", ".71em")
                          .style("text-anchor", "end")
-                         .text("Frequency");
+                         .text("Utilisation");
                          
                          svg.selectAll(".bar")
                          .data(data)

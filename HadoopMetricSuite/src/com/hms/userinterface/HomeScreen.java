@@ -1,6 +1,7 @@
 package com.hms.userinterface;
 
 import org.eclipse.swt.SWT;
+
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
@@ -17,7 +18,6 @@ import com.hms.common.Constants;
 import com.hms.common.JobSession;
 import com.hms.common.UserLog;
 import com.hms.connection.ClusterMaster;
-import com.hms.database.DatabaseManager;
 
 public class HomeScreen {
 
@@ -37,14 +37,14 @@ public class HomeScreen {
 		Display display = Display.getDefault();
 
 		shell = new Shell();
-		shell.setMinimumSize(500, 500);
+		shell.setMinimumSize(1200, 700);
 		shell.setText(Constants.APPLICATION_TITLE);
 		shell.setLayout(new FormLayout());
 
 		Label lblIPAddress = new Label(shell, SWT.NONE);
 		FormData fd_lblIPAddress = new FormData();
 		fd_lblIPAddress.top = new FormAttachment(34);
-		fd_lblIPAddress.left = new FormAttachment(25);
+		fd_lblIPAddress.left = new FormAttachment(40);
 		lblIPAddress.setLayoutData(fd_lblIPAddress);
 		lblIPAddress.setText("IP Address");
 
@@ -59,7 +59,7 @@ public class HomeScreen {
 		Label lblUsername = new Label(shell, SWT.NONE);
 		FormData fd_lblUsername = new FormData();
 		fd_lblUsername.top = new FormAttachment(lblIPAddress, 30);
-		fd_lblUsername.left = new FormAttachment(25);
+		fd_lblUsername.left = new FormAttachment(40);
 		lblUsername.setLayoutData(fd_lblUsername);
 		lblUsername.setText("Username");
 
@@ -74,7 +74,7 @@ public class HomeScreen {
 		Label lblPassword = new Label(shell, SWT.NONE);
 		FormData fd_lblPassword = new FormData();
 		fd_lblPassword.top = new FormAttachment(lblUsername, 30);
-		fd_lblPassword.left = new FormAttachment(25);
+		fd_lblPassword.left = new FormAttachment(40);
 		lblPassword.setLayoutData(fd_lblPassword);
 		lblPassword.setText("Password");
 
@@ -91,7 +91,7 @@ public class HomeScreen {
 		fd_btnOk.width = 75;
 		fd_btnOk.height = 20;
 		fd_btnOk.top = new FormAttachment(lblPassword, 30);
-		fd_btnOk.left = new FormAttachment(25);
+		fd_btnOk.left = new FormAttachment(40);
 		btnOk.setLayoutData(fd_btnOk);
 		btnOk.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -167,23 +167,8 @@ public class HomeScreen {
 				{
 					shell.setVisible(false);
 
-					int expNo = 0;
-					
-					try
-					{
-						DatabaseManager dbManager = new DatabaseManager();
-						dbManager.getConnection();
-						expNo = dbManager.getExperimentCount() + 1;
-						dbManager.closeConnection();
-					}
-					catch (Exception e)
-					{
-						System.out.println("Exception inside experiment count fetch");
-						e.printStackTrace();
-					}
-					
-					ConfigurationScreen config = new ConfigurationScreen();
-					config.displayConfigScreen("Experiment " + expNo);
+					TabbedScreen tab = new TabbedScreen();
+					tab.displayTabbedScreen();
 				}
 				else
 				{
