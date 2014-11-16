@@ -85,7 +85,7 @@ public class ClusterSlave {
 			CustomTask scriptPermission = new ExecCommand("chmod 755 " + Constants.USER_PATH + Constants.SCRIPT_NAME);
 			sshSlave.exec(scriptPermission);
 
-			CustomTask shellMaster = new ExecShellScript(Constants.USER_PATH.substring(0, Constants.USER_PATH.length()-1), "./" + Constants.SCRIPT_NAME + " >> dummy.txt &", "");
+			CustomTask shellMaster = new ExecShellScript(Constants.USER_PATH.substring(0, Constants.USER_PATH.length()-1), "./" + Constants.SCRIPT_NAME  + " " + JobSession.retrievalFrequency + " >> dummy.txt &", "");
 
 			Result resMaster = sshSlave.exec(shellMaster);
 
@@ -184,12 +184,12 @@ public class ClusterSlave {
 		
 		killScriptRun();
 
-		if (readCPULog())
+		if (readLog(Constants.CPU_LOG_NAME) && readLog(Constants.DISK_LOG_NAME) && readLog(Constants.MEM_LOG_NAME) && readLog(Constants.NET_LOG_NAME))
 		{
 			try
 			{
 				dbManager.getConnection();
-				dbManager.insertIntoPlatformMetrics(nodeID, nodeID + Constants.TEMP_LOG_NAME);
+				dbManager.insertIntoPlatformMetrics(nodeID);
 			}
 			catch (Exception e)
 			{
@@ -201,7 +201,7 @@ public class ClusterSlave {
 		}
 	}
 
-	private boolean readCPULog()
+	private boolean readLog(String logFileName)
 	{
 		if (sshSlave == null)
 		{
@@ -210,7 +210,7 @@ public class ClusterSlave {
 		}
 
 		try {
-			CustomTask grep = new ExecCommand("cat " + Constants.USER_PATH + Constants.CPU_LOG_NAME);
+			CustomTask grep = new ExecCommand("cat " + Constants.USER_PATH + logFileName);
 
 			Result res = sshSlave.exec(grep);
 
@@ -219,7 +219,7 @@ public class ClusterSlave {
 				UserLog.addToLog(Constants.ERRORCODES.get("LogFileRead"));
 				log.info(Constants.ERRORCODES.get("LogFileRead"));
 
-				PrintWriter logOutput = new PrintWriter(nodeID + Constants.TEMP_LOG_NAME);
+				PrintWriter logOutput = new PrintWriter(nodeID + Constants.TEMP_LOG_NAME + logFileName);
 				logOutput.println(res.sysout);
 				logOutput.close();
 

@@ -6,8 +6,14 @@ import java.util.Map;
 public class JobSession {
 
 	//User account
+	public static String masterIP;
 	public static String username;
 	public static String password;
+	
+	//Job details
+	public static int retrievalFrequency = 1;
+	public static String applicationType;
+	public static int expectedRuns;
 	
 	//JobConfig table model
 	public static String jobID;
