@@ -2,6 +2,7 @@ package com.hms.database;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
+import java.io.File;
 import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -11,6 +12,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
 import java.util.ArrayList;
+import java.util.Calendar;
 
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Logger;
@@ -69,6 +71,13 @@ public class DatabaseManager {
 	 */
 	public void fetchData(String jobID) throws SQLException {
 
+		File tsvFile = new File(Constants.GRAPH_DATA_PATH + jobID + Constants.CPU +".tsv");
+		
+		if (tsvFile.exists())
+		{
+			return;
+		}
+		
 		time.clear();
 		cpu.clear();
 		disk.clear();
@@ -91,10 +100,117 @@ public class DatabaseManager {
 			log.error("Database fetch exception", e);
 			throw e;
 		}
+		
+		System.out.println("Total size " + time.size());
+		System.out.println("Interval " + time.size()/Constants.MAXIMUM_DATA_VIEW);
+
+		if (time.size()/Constants.MAXIMUM_DATA_VIEW > 1)
+		{
+			averageValueToNormalize(jobID);
+		}
+		else
+		{
+			writeDBToFile(Constants.GRAPH_DATA_PATH + jobID + Constants.CPU +".tsv", cpu);
+			writeDBToFile(Constants.GRAPH_DATA_PATH + jobID + Constants.DISK +".tsv", disk);
+			writeDBToFile(Constants.GRAPH_DATA_PATH + jobID + Constants.MEMORY +".tsv", memory);
+			writeDBToFile(Constants.GRAPH_DATA_PATH + jobID + Constants.NETWORK +".tsv", network);
+		}
+	}
+
+	private void averageValueToNormalize(String jobID)
+	{
+		int size = time.size();
+		double value = 0;
+		int interval = (int)size/Constants.MAXIMUM_DATA_VIEW;
+		int count = 0;
+
+		ArrayList<String> temp = new ArrayList<>();
+		
+		//To handle zero based calculation
+		size--;
+
+		//CPU
+		while (size > 0) {
+			value += Double.parseDouble(cpu.get(size));
+			count++;
+
+			if (count > interval)
+			{
+				value = value/interval;
+				count = 0;
+
+				temp.add("" + value);
+			}
+			
+			size--;
+		}
 
 		writeDBToFile("dat/" + jobID + Constants.CPU +".tsv", cpu);
+		
+		temp.clear();
+		count = 0;
+		size = time.size() - 1;
+
+		//Disk
+		while (size > 0) {
+			value += Double.parseDouble(disk.get(size));
+			count++;
+
+			if (count > interval)
+			{
+				value = value/interval;
+				count = 0;
+
+				temp.add("" + value);
+			}
+			
+			size--;
+		}
+		
 		writeDBToFile("dat/" + jobID + Constants.DISK +".tsv", disk);
+		
+		temp.clear();
+		count = 0;
+		size = time.size() - 1;
+		
+		//Memory
+		while (size > 0) {
+			value += Double.parseDouble(memory.get(size));
+			count++;
+
+			if (count > interval)
+			{
+				value = value/interval;
+				count = 0;
+
+				temp.add("" + value);
+			}
+			
+			size--;
+		}
+		
 		writeDBToFile("dat/" + jobID + Constants.MEMORY +".tsv", memory);
+		
+		temp.clear();
+		count = 0;
+		size = time.size() - 1;
+		
+		//Network
+		while (size > 0) {
+			value += Double.parseDouble(network.get(size));
+			count++;
+
+			if (count > interval)
+			{
+				value = value/interval;
+				count = 0;
+
+				temp.add("" + value);
+			}
+			
+			size--;
+		}
+
 		writeDBToFile("dat/" + jobID + Constants.NETWORK +".tsv", network);
 	}
 
@@ -103,12 +219,15 @@ public class DatabaseManager {
 	 * @param filename
 	 */
 	private void writeDBToFile(String filename, ArrayList<String> temp) {
+		int size = time.size() - 1;
+		int interval = (int)size/10;
+		
 		try {
 			FileWriter fileWriter = new FileWriter(filename);
 			BufferedWriter writer = new BufferedWriter(fileWriter);
 			writer.write("letter\tfrequency\n");
 			for (int i = 0; i < time.size(); i++) {
-				writer.append(time.get(i) + "\t" + temp.get(i) + "\n");
+				writer.append(interval * i + "\t" + temp.get(i) + "\n");
 			}
 			writer.close();
 		} catch (IOException e) {
@@ -264,13 +383,16 @@ public class DatabaseManager {
 	public ArrayList<String> getOldJobs()
 	{
 		ArrayList<String> temp = new ArrayList<>();
+		
+		Calendar mydate = Calendar.getInstance();
 
 		try {
 			Statement statement = connection.createStatement();
 			ResultSet rs = statement
 					.executeQuery("Select jobid, starttime from JobConfig");
 			while (rs.next()) {
-				temp.add(rs.getString("jobid") + " on " + rs.getString("starttime"));
+				mydate.setTimeInMillis(Long.parseLong(rs.getString("starttime"))*1000);
+				temp.add(rs.getString("jobid") + " on " + mydate.get(Calendar.MONTH) + "/" + mydate.get(Calendar.DAY_OF_MONTH) + "/" + mydate.get(Calendar.YEAR));
 			}
 		} catch (SQLException e) {
 			// connection close failed.
