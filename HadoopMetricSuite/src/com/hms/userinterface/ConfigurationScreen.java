@@ -20,6 +20,7 @@ import com.hms.common.Constants;
 import com.hms.common.JobSession;
 import com.hms.common.UserLog;
 import com.hms.connection.ClusterMaster;
+import com.hms.database.DatabaseManager;
 
 public class ConfigurationScreen {
 
@@ -31,14 +32,21 @@ public class ConfigurationScreen {
 	private Combo combo_1;
 	private Button btnStart;
 	private Button btnReset;
+	private Label lblNewLabel;
 	private boolean shouldUpdateLog;
+	
+	private boolean isFromHome = false;
 
 	static final Logger log = (Logger) LogManager
 			.getLogger(ConfigurationScreen.class.getName());
+	
+	String selectedApplication = Constants.WORD_COUNT;
 
 	public void displayConfigScreen(Composite parent, String experimentName) {
 
-		text = new Text(parent, SWT.BORDER);
+		isFromHome = true;
+		
+		text = new Text(parent, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
 		text.setEditable(false);
 		FormData fd_text = new FormData();
 		fd_text.height = 400;
@@ -58,7 +66,7 @@ public class ConfigurationScreen {
 		composite.setLayoutData(fd_composite);
 		composite.setLayout(new FormLayout());
 
-		Label lblNewLabel = new Label(composite, SWT.NONE);
+		lblNewLabel = new Label(composite, SWT.NONE);
 		FormData fd_lblNewLabel = new FormData();
 		fd_lblNewLabel.top = new FormAttachment(0, 26);
 		fd_lblNewLabel.left = new FormAttachment(0, 10);
@@ -159,13 +167,32 @@ public class ConfigurationScreen {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
 
-				System.out.println("Application " + combo.getText());
-				System.out.println("Data size " + text_1.getText());
-				System.out.println("Frequency " + text_2.getText());
-				System.out.println("Run " + text_3.getText());
-				System.out.println("Graph " + combo_1.getText());
-
+				if (isFromHome)
+				{
+					isFromHome = false;
+				}
+				else
+				{
+					int expNo = 0;
+					
+					try
+					{
+						DatabaseManager dbManager = new DatabaseManager();
+						dbManager.getConnection();
+						expNo = dbManager.getExperimentCount() + 1;
+						dbManager.closeConnection();
+					}
+					catch (Exception e)
+					{
+						log.error("Exception inside experiment count fetch", e);
+					}
+					
+					lblNewLabel.setText("Experiment " + expNo);
+				}
+				
 				setWidgetEnabled(false);
+				
+				selectedApplication = combo.getText();
 
 				Thread hadoopJobThread = new Thread(new Runnable() {
 					public void run() {
@@ -186,11 +213,11 @@ public class ConfigurationScreen {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
 				text.setText("");
-				text_1.setText("");
-				text_2.setText("");
-				text_3.setText("");
-				combo.setText("");
-				combo_1.setText("");
+				text_1.setText("1");
+				text_2.setText("1");
+				text_3.setText("1");
+				combo.select(0);
+				combo_1.select(0);
 			}
 		});
 		FormData fd_btnReset = new FormData();
@@ -247,17 +274,41 @@ public class ConfigurationScreen {
 
 		if (master.connectToMaster(JobSession.masterIP, JobSession.username,
 				JobSession.password)) {
-			 master.fetchSlaveList();
-			 master.transferAndRunScriptFile();
-			
-			for (int i = 0; i < JobSession.expectedRuns; i++) {
-				 master.runApplicationJob(Constants.WORD_COUNT);
+			if (master.fetchSlaveList())
+			{
+				if (master.transferAndRunScriptFile())
+				{
+					for (int i = 0; i < JobSession.expectedRuns; i++) {
+						 
+						JobSession.currentRunNo = i + 1;
+						
+						if (!master.runApplicationJob(selectedApplication))
+						{
+							UserLog.addToLog(Constants.ERRORCODES.get("HadoopRunImpossible"));
+							log.error(Constants.ERRORCODES.get("HadoopRunImpossible"));
+							
+							break;
+						}
+					}
+				}
+				else
+				{
+					UserLog.addToLog(Constants.ERRORCODES.get("HadoopRunImpossible"));
+					log.error(Constants.ERRORCODES.get("HadoopRunImpossible"));
+				}
+			}
+			else
+			{
+				UserLog.addToLog(Constants.ERRORCODES.get("HadoopRunImpossible"));
+				log.error(Constants.ERRORCODES.get("HadoopRunImpossible"));
 			}
 			
 			master.disconnectMaster();
 		}
 
 		shouldUpdateLog = false;
+		
+		JobSession.cleanUp();
 
 		Display.getDefault().asyncExec(new Runnable() {
 
