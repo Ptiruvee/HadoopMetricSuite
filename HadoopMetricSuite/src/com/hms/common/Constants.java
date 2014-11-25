@@ -14,6 +14,8 @@ public class Constants {
        aMap.put("SuccessMasterConnection", "Connected successfully to master...");
        aMap.put("FailedMasterConnection", "Unable to connect to master, cannot proceed further!");
        aMap.put("NoMasterConnection", "Cannot fetch slave list without connection to master!");
+       aMap.put("MasterSlaveListFetch", "Going to fetch slave list from master...");
+       
        aMap.put("SuccessMasterSlaveListFetch", "Fetched slave list from master successfully...");
        aMap.put("FailedMasterSlaveListFetch", "Unable to fetch slave list from master successfully!");
        aMap.put("ClosedMasterConnection", "Closing connection with master...");
@@ -28,12 +30,30 @@ public class Constants {
        aMap.put("ScriptExecutionFailure", "Script file did not execute...");
 
        aMap.put("JarTransferSuccess", "Application jar files transferred...");
+       aMap.put("DGJarTransferSuccess", "Data generation jar file transferred...");
 
-       aMap.put("JobAboutToRun", "job will start now...");
-       aMap.put("JobCannotRun", "job cannot start now!");
+       aMap.put("DGJobAboutToRun", "Data generation going to start now...");
+       aMap.put("DGJobSuccess", "Data generation successful...");
+       aMap.put("DGJobCannotToRun", "Unable to generate data now!");
+       
+       aMap.put("DataCleanedUp", "Input/Output from HDFS cleaned up...");
+       aMap.put("DataNotCleanedUp", "Input/Output from HDFS not cleaned up!");
+       
+       aMap.put("LocalToHDFS", "Generated data to be moved from local to HDFS...");
+       aMap.put("LocalToHDFSFailure", "Unable to move data from local to HDFS!");
+       aMap.put("LocalToHDFSSuccess", "Migrated data from local to HDFS successfully...");
+       
+       aMap.put("JobAboutToRun", "Hadoop job will start now...");
+       aMap.put("JobCannotRun", "Hadoop job cannot start now!");
 
        aMap.put("LogFileRead", "Log file is about to be read...");
        aMap.put("LogFileNoRead", "Unable to read Log file!");
+       
+       aMap.put("LogFileCleaned", "Log file has been removed...");
+       aMap.put("LogFileNotCleaned", "Unable to remove log file!");
+       
+       aMap.put("ConfigFileRead", "Hadoop config file is about to be read...");
+       aMap.put("ConfigFileNoRead", "Unable to read hadoop config file!");
 
        aMap.put("ScriptKillSuccess", "Stopped script running in the background...");
        aMap.put("ScriptKillFailure", "Unable to terminate script running in the background!");
@@ -44,6 +64,9 @@ public class Constants {
 
        aMap.put("DBMasterInsertionError", "Unable to insert data into the database!");
        aMap.put("DBSlaveInsertionError", "Unable to insert data into the database!");
+       
+       aMap.put("HadoopRunImpossible", "We cannot proceed further in running the Hadoop jobs in the cluster!");
+       aMap.put("SlaveFailure", "Not all slaves are available for job run, so cannot proceed!");
 
        ERRORCODES = Collections.unmodifiableMap(aMap);
    }
@@ -79,25 +102,29 @@ public class Constants {
    public static final String GREP = "Grep";
    public static final String DEDUP = "Dedup";
    public static final String DATAGEN = "DataGenerator";
+   public static final String GREP_SEARCH_WORD = "AA";
 
    //Platform metrics
    public static final String CPU = "Cpu";
    public static final String CPU_PROCESS = "Cpu per process";
    public static final String DISK = "Disk";
+   public static final String DISK_RW = "Disk_readwrite";
+   public static final String DISK_TIME = "Disk_time";
    public static final String MEMORY = "Memory";
    public static final String NETWORK = "Network";
+   
+   //Hadoop configuration
+   public static final String HADOOP_CONFIG = "Hadoop configuration";
 
 	//User path
 	public static final String USER_PATH = "/home/ec2-user/";
 	
 	//Script
 	public static final String SCRIPT_PATH = "scripts/";
-	public static final String SCRIPT_NAME = "CPU.sh";
+	public static final String SCRIPT_NAME = "Platform.sh";
 	
-	//Data
+	//Paths
 	public static final String GRAPH_DATA_PATH = "dat/graph/";
-	
-	//Application
 	public static final String JAR_PATH = "applications/";
 	
 	//Log
@@ -110,11 +137,15 @@ public class Constants {
 	//Hadoop version & path
 	public static final String HADOOP_VERSION = "hadoop-2.5.0";
 	public static final String HADOOP_BIN = "/bin/hadoop";
+	public static final String HADOOP_CONF_FILE = "mapred-site.xml";
+	public static final String HADOOP_CONF_PATH = "/etc/hadoop/mapred-site.xml";
 	public static final String SLAVE_LIST_PATH = "/etc/hadoop/slaves";
+	public static final String INPUT_PATH = " /home/user/input/";
+	public static final String OUTPUT_PATH = " /home/user/output/";
 
 	//Boundary
 	public static final int MAXIMUM_SLAVES = 100;
-	public static final int MAXIMUM_DATA_VIEW = 60;
+	public static final double MAXIMUM_DATA_VIEW = 50.0;
 	
 	//User interface
 	public static final String APPLICATION_TITLE = "Hadoop Metrics Suite";
