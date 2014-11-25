@@ -67,12 +67,14 @@ public class ClusterSlave {
 		} 
 	}
 
-	public void transferAndRunScriptFile()
+	public boolean transferAndRunScriptFile()
 	{
 		if (sshSlave == null)
 		{
 			UserLog.addToLog(Constants.ERRORCODES.get("NoSlaveConnection"));
 			log.error(Constants.ERRORCODES.get("NoSlaveConnection"));
+			
+			return false;
 		}
 
 		try {
@@ -95,6 +97,8 @@ public class ClusterSlave {
 				log.info(Constants.ERRORCODES.get("ScriptExecutionSuccess"));
 				
 				fetchScriptProcessID();
+				
+				return true;
 			}                        
 			else
 			{
@@ -106,6 +110,8 @@ public class ClusterSlave {
 		} catch (Exception e) {
 			log.error("Slave script execution exception", e);
 		} 
+		
+		return false;
 	}
 	
 	private void fetchScriptProcessID()
@@ -144,7 +150,7 @@ public class ClusterSlave {
 		} 
 	}
 
-	private void killScriptRun()
+	public void killScriptRun()
 	{
 		if (sshSlave == null)
 		{
@@ -167,6 +173,35 @@ public class ClusterSlave {
 				UserLog.addToLog(Constants.ERRORCODES.get("ScriptKillFailure"));
 				log.info(Constants.ERRORCODES.get("ScriptKillFailure"));
 			}
+		} catch (TaskExecFailException e) {
+			log.error("Script termination exception", e);
+		} catch (Exception e) {
+			log.error("Script termination exception", e);
+		}
+	}
+	
+	public void cleanUpLogs()
+	{
+		if (sshSlave == null)
+		{
+			UserLog.addToLog(Constants.ERRORCODES.get("NoMasterConnection"));
+			log.error(Constants.ERRORCODES.get("NoMasterConnection"));
+		}
+
+		try {
+			CustomTask cleanJob = new ExecCommand("rm hms_*");
+
+			Result res = sshSlave.exec(cleanJob);
+			
+			if (res.isSuccess)
+			{
+				log.info(Constants.ERRORCODES.get("LogFileCleaned"));
+			}                        
+			else
+			{
+				log.info(Constants.ERRORCODES.get("LogFileNotCleaned"));
+			}
+			
 		} catch (TaskExecFailException e) {
 			log.error("Script termination exception", e);
 		} catch (Exception e) {
@@ -199,6 +234,8 @@ public class ClusterSlave {
 			
 			dbManager.closeConnection();
 		}
+		
+		cleanUpLogs();
 	}
 
 	private boolean readLog(String logFileName)
@@ -211,6 +248,44 @@ public class ClusterSlave {
 
 		try {
 			CustomTask grep = new ExecCommand("cat " + Constants.USER_PATH + logFileName);
+
+			Result res = sshSlave.exec(grep);
+
+			if (res.isSuccess)
+			{
+				UserLog.addToLog(Constants.ERRORCODES.get("LogFileRead"));
+				log.info(Constants.ERRORCODES.get("LogFileRead"));
+
+				PrintWriter logOutput = new PrintWriter(nodeID + Constants.TEMP_LOG_NAME + logFileName);
+				logOutput.println(res.sysout);
+				logOutput.close();
+
+				return true;
+			}                        
+			else
+			{
+				UserLog.addToLog(Constants.ERRORCODES.get("LogFileNoRead"));
+				log.info(Constants.ERRORCODES.get("LogFileNoRead"));
+			}
+		} catch (TaskExecFailException e) {
+			log.error("Read log file exception", e);
+		} catch (Exception e) {
+			log.error("Read log file exception", e);
+		}
+
+		return false;
+	}
+	
+	public boolean readLogTemp(String logFileName)
+	{
+		if (sshSlave == null)
+		{
+			UserLog.addToLog(Constants.ERRORCODES.get("NoSlaveConnection"));
+			log.error(Constants.ERRORCODES.get("NoSlaveConnection"));
+		}
+
+		try {
+			CustomTask grep = new ExecCommand("cat " + "/afs/andrew.cmu.edu/usr14/aganeshu/" + logFileName);
 
 			Result res = sshSlave.exec(grep);
 
