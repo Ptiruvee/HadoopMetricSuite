@@ -1,5 +1,6 @@
 package com.hms.common;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -14,6 +15,7 @@ public class JobSession {
 	public static int retrievalFrequency = 1;
 	public static String applicationType;
 	public static int expectedRuns;
+	public static int currentRunNo = 1;
 	
 	//JobConfig table model
 	public static String jobID;
@@ -24,4 +26,36 @@ public class JobSession {
 	
 	//Slave
 	public static Map<String, String> processIDOfSlaves = new HashMap<String, String>();
+
+	public static void startUp()
+	{
+		File dir = new File("./");
+		
+		if (dir.listFiles() != null)
+		{
+			for(File file: dir.listFiles()) 
+			{
+				if (file.getName().endsWith(".log"))
+				{
+					file.delete();
+				}
+			}
+		}
+	}
+	
+	public static void cleanUp()
+	{
+		File dir = new File("./");
+		
+		if (dir.listFiles() != null)
+		{
+			for(File file: dir.listFiles()) 
+			{
+				if (file.getName().endsWith(".txt"))
+				{
+					file.delete();
+				}
+			}
+		}
+	}
 }
