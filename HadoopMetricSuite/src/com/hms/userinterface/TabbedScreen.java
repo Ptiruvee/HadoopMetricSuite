@@ -2,7 +2,11 @@ package com.hms.userinterface;
 
 import java.util.ArrayList;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.Logger;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.events.SelectionAdapter;
+import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
@@ -15,6 +19,7 @@ import org.eclipse.swt.widgets.TabFolder;
 import org.eclipse.swt.widgets.TabItem;
 
 import com.hms.common.Constants;
+import com.hms.common.OldJob;
 import com.hms.database.DatabaseManager;
 
 public class TabbedScreen {
@@ -22,7 +27,11 @@ public class TabbedScreen {
 	TabFolder tabFolder;
 	TabItem tbtmJobs;
 	TabItem tbtmGraph;
+	GraphDisplayScreen graph;
 
+	static final Logger log = (Logger) LogManager
+			.getLogger(TabbedScreen.class.getName());
+	
 	public void displayTabbedScreen() {
 		Display display = Display.getDefault();
 		
@@ -33,6 +42,29 @@ public class TabbedScreen {
 		shell.setLayout(new FillLayout(SWT.HORIZONTAL));
 		
 		tabFolder = new TabFolder(shell, SWT.NONE);
+		tabFolder.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent arg0) {
+				if (tabFolder.getSelection()[0].getText().equalsIgnoreCase("Graph"))
+				{
+					ArrayList<OldJob> oldJobs = new ArrayList<>();
+					
+					try
+					{
+						DatabaseManager dbManager = new DatabaseManager();
+						dbManager.getConnection();
+						oldJobs = dbManager.getOldJobs();
+						dbManager.closeConnection();
+					}
+					catch (Exception e)
+					{
+						log.error("Exception inside experiment count fetch", e);
+					}
+					
+					graph.refreshItems(oldJobs);
+				}
+			}
+		});
 		
 		tbtmJobs = new TabItem(tabFolder, SWT.NONE);
 		tbtmJobs.setText("Jobs");
@@ -74,8 +106,7 @@ public class TabbedScreen {
 		}
 		catch (Exception e)
 		{
-			System.out.println("Exception inside experiment count fetch");
-			e.printStackTrace();
+			log.error("Exception inside experiment count fetch", e);
 		}
 		
 		ConfigurationScreen config = new ConfigurationScreen();
@@ -94,7 +125,7 @@ public class TabbedScreen {
 		graphComposite.setLayoutData(fd_composite);
 		graphComposite.setLayout(new FormLayout());
 		
-		ArrayList<String> oldJobs = new ArrayList<>();
+		ArrayList<OldJob> oldJobs = new ArrayList<>();
 		
 		try
 		{
@@ -105,11 +136,10 @@ public class TabbedScreen {
 		}
 		catch (Exception e)
 		{
-			System.out.println("Exception inside experiment count fetch");
-			e.printStackTrace();
+			log.error("Exception inside experiment count fetch", e);
 		}
 		
-		GraphDisplayScreen graph = new GraphDisplayScreen();
+		graph = new GraphDisplayScreen();
 		graph.showGraph(graphComposite, oldJobs);
 		
 		tbtmGraph.setControl(graphComposite);
