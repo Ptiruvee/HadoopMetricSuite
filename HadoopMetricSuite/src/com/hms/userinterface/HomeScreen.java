@@ -1,7 +1,6 @@
 package com.hms.userinterface;
 
 import org.eclipse.swt.SWT;
-
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
@@ -34,6 +33,9 @@ public class HomeScreen {
 
 	public void displayHome()
 	{
+		//Clean up old files
+		JobSession.startUp();
+		
 		Display display = Display.getDefault();
 
 		shell = new Shell();
@@ -166,6 +168,8 @@ public class HomeScreen {
 				if (shallProceed)
 				{
 					shell.setVisible(false);
+					
+					UserLog.getUserLog();
 
 					TabbedScreen tab = new TabbedScreen();
 					tab.displayTabbedScreen();
