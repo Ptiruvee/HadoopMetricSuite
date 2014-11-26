@@ -53,15 +53,34 @@
         top: 100%;
         left: 0;
     }
+    
+    .legend {
+        font-size: 12px;
+        font-weight: bold;
+        text-anchor: middle;
+    }
+    
+    .xlegend {
+        font-size: 12px;
+        font-weight: bold;
+        text-anchor: end;
+    }
     </style>
     <body>
         <script src="http://d3js.org/d3.v3.min.js"></script>
         <script src="http://labratrevenge.com/d3-tip/javascripts/d3.tip.v0.6.3.js"></script>
         <script>
             
-            var margin = {top: 40, right: 20, bottom: 30, left: 40},
-            width = 960 - margin.left - margin.right,
-            height = 500 - margin.top - margin.bottom;
+            var w = window,
+            d = document,
+            e = d.documentElement,
+            g = d.getElementsByTagName('body')[0],
+            x = w.innerWidth || e.clientWidth || g.clientWidth,
+            y = w.innerHeight|| e.clientHeight|| g.clientHeight;
+            
+            var margin = {top: 35, right: 40, bottom: 35, left: 50},
+            width = x - margin.left - margin.right,
+            height = y - margin.top - margin.bottom;
             
             var formatPercent = d3.format(".0%");
             
@@ -84,7 +103,7 @@
             .attr('class', 'd3-tip')
             .offset([-10, 0])
             .html(function(d) {
-                  return "<strong>Utilisation:</strong> <span style='color:red'>" + d.frequency + "</span>";
+                  return "<strong>Utilisation:</strong> <span style='color:red'>" + (100 * d.frequency) + "</span>";
                   })
                   
                   var svg = d3.select("body").append("svg")
@@ -97,27 +116,26 @@
                   
                   d3.tsv("Template.tsv", type, function(error, data) {
                          x.domain(data.map(function(d) { return d.letter; }));
-                         y.domain([0, d3.max(data, function(d) { return d.frequency; })]);
+                         y.domain([0, 1]);
                          
                          svg.append("g")
                          .attr("class", "x axis")
                          .attr("transform", "translate(0," + height + ")")
                          .call(xAxis)
                          .append("text")
-                         .attr("y", 8)
-                         .attr("dy", ".71em")
-                         .style("text-anchor", "end")
-                         .text("Time");
+                         .attr("x", 5)
+                         .attr("y", 15)
+                         .attr("class", "xlegend")
+                         .text("Time in s");
                          
                          svg.append("g")
                          .attr("class", "y axis")
                          .call(yAxis)
                          .append("text")
-                         .attr("transform", "rotate(-90)")
-                         .attr("y", 3)
-                         .attr("dy", ".71em")
-                         .style("text-anchor", "end")
-                         .text("Utilisation");
+                         .attr("x", 5)
+                         .attr("y", -10)
+                         .attr("class", "legend")
+                         .text("Utilisation %");
                          
                          svg.selectAll(".bar")
                          .data(data)
