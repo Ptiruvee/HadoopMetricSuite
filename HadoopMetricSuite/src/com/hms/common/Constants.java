@@ -113,6 +113,10 @@ public class Constants {
    public static final String MEMORY = "Memory";
    public static final String NETWORK = "Network";
    
+   //Graph type
+   public static final String NODE = "Node";
+   public static final String CLUSTER ="Cluster";
+   
    //Hadoop configuration
    public static final String HADOOP_CONFIG = "Hadoop configuration";
 

@@ -14,6 +14,7 @@ import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
+import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 
@@ -26,6 +27,9 @@ public class GraphDisplayScreen {
 	Combo combo;
 	Combo combo_1;
 	Browser browser;
+	Button btnNodeWise;
+	Button btnClusterWise;
+	Button btnAllRuns;
 
 	boolean isFirstTimeLoad = true;
 
@@ -91,6 +95,40 @@ public class GraphDisplayScreen {
 		{
 			log.error("Default HTML exception", e);
 		}
+
+		btnNodeWise = new Button(parent, SWT.RADIO);
+		FormData fd_btnNodeWise = new FormData();
+		fd_btnNodeWise.top = new FormAttachment(combo, 0, SWT.TOP);
+		fd_btnNodeWise.left = new FormAttachment(combo_1, 65);
+		btnNodeWise.setLayoutData(fd_btnNodeWise);
+		btnNodeWise.setText("Node wise");
+
+		btnClusterWise = new Button(parent, SWT.RADIO);
+		btnClusterWise.setSelection(true);
+		btnClusterWise.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent arg0) {
+				loadGraph();
+			}
+		});
+		FormData fd_btnClusterWise = new FormData();
+		fd_btnClusterWise.top = new FormAttachment(combo, 0, SWT.TOP);
+		fd_btnClusterWise.left = new FormAttachment(btnNodeWise, 39);
+		btnClusterWise.setLayoutData(fd_btnClusterWise);
+		btnClusterWise.setText("Cluster wise");
+		
+		btnAllRuns = new Button(parent, SWT.CHECK);
+		btnAllRuns.addSelectionListener(new SelectionAdapter() {
+			@Override
+			public void widgetSelected(SelectionEvent arg0) {
+				loadGraph();
+			}
+		});
+		FormData fd_btnAllRuns = new FormData();
+		fd_btnAllRuns.left = new FormAttachment(btnClusterWise, 39);
+		fd_btnAllRuns.top = new FormAttachment(combo, 0, SWT.TOP);
+		btnAllRuns.setLayoutData(fd_btnAllRuns);
+		btnAllRuns.setText("All runs");
 	}
 
 	public void refreshItems(ArrayList<OldJob> jobList)
@@ -115,6 +153,31 @@ public class GraphDisplayScreen {
 
 	private void loadGraph()
 	{
+		int runs = 1;
+		boolean wantAllRun = false;
+		
+		try
+		{
+			DatabaseManager data = new DatabaseManager();
+			data.getConnection();
+			runs = data.getRunNumberForJob(combo.getText().split(" on ")[0]);
+			data.closeConnection();
+		}
+		catch (Exception e)
+		{
+			System.out.println("Database run number fetch exception");
+			e.printStackTrace();
+		}
+		
+		if (runs > 1)
+		{
+			btnAllRuns.setVisible(true);
+		}
+		else
+		{
+			btnAllRuns.setVisible(false);
+		}
+		
 		if (combo_1.getText().equalsIgnoreCase(Constants.HADOOP_CONFIG))
 		{
 			File xmlFile = new File("./" + Constants.GRAPH_DATA_PATH + combo.getText().split(" on ")[0] + Constants.HADOOP_CONF_FILE);
@@ -137,8 +200,39 @@ public class GraphDisplayScreen {
 			}
 			return;
 		}
+		
+		String whichFileType = "";
+		String fileName = combo.getText().split(" on ")[0];
+		
+		//Multiple runs of same experiment
+		if (btnAllRuns.getVisible() && btnAllRuns.getSelection())
+		{
+			whichFileType = Constants.CLUSTER;
+			fileName = combo.getText().split(" on ")[0].split(Constants.DELIMITER)[0];
+			
+			btnClusterWise.setVisible(false);
+			btnNodeWise.setVisible(false);
+		}
+		else
+		{
+			btnClusterWise.setVisible(true);
+			btnNodeWise.setVisible(true);
+			
+			if (btnClusterWise.getSelection())
+			{
+				whichFileType = Constants.CLUSTER;
+			}
+			else
+			{
+				whichFileType = Constants.NODE;
+			}
+		}
+		
+		wantAllRun = btnAllRuns.getSelection();
+		
+		System.out.println("Here Expected file name is " + "./" + Constants.GRAPH_DATA_PATH + whichFileType + fileName + combo_1.getText() + ".html");
 
-		File htmlFile = new File("./" + Constants.GRAPH_DATA_PATH + combo.getText().split(" on ")[0] + combo_1.getText() + ".html");
+		File htmlFile = new File("./" + Constants.GRAPH_DATA_PATH + whichFileType + fileName + combo_1.getText() + ".html");
 
 		try
 		{
@@ -150,21 +244,29 @@ public class GraphDisplayScreen {
 			{
 				DatabaseManager data = new DatabaseManager();
 				data.getConnection();
-				data.fetchData(combo.getText().split(" on ")[0]);
+				data.fetchData(combo.getText().split(" on ")[0], whichFileType, wantAllRun, runs);
 				data.closeConnection();
 
 				String templatePath = "";
 				String toReplaceTemplate = "";
 
-				if (combo_1.getText().equalsIgnoreCase(Constants.CPU) || combo_1.getText().equalsIgnoreCase(Constants.MEMORY))
-				{
-					templatePath = "./dat/Template.html";
-					toReplaceTemplate = "Template.tsv";
-				}
-				else
+				if (whichFileType == Constants.NODE)
 				{
 					templatePath = "./dat/Template2.html";
 					toReplaceTemplate = "Template2.tsv";
+				}
+				else
+				{
+					if (combo_1.getText().equalsIgnoreCase(Constants.CPU) || combo_1.getText().equalsIgnoreCase(Constants.MEMORY))
+					{
+						templatePath = "./dat/Template.html";
+						toReplaceTemplate = "Template.tsv";
+					}
+					else
+					{
+						templatePath = "./dat/Template2.html";
+						toReplaceTemplate = "Template2.tsv";
+					}
 				}
 
 				BufferedReader br = new BufferedReader(new FileReader(templatePath));
@@ -177,9 +279,25 @@ public class GraphDisplayScreen {
 						sb.append(System.lineSeparator());
 						line = br.readLine();
 					}
+
 					String htmlContent = sb.toString();
-					PrintWriter out = new PrintWriter(Constants.GRAPH_DATA_PATH + combo.getText().split(" on ")[0] + combo_1.getText() + ".html");
-					out.print(htmlContent.replace(toReplaceTemplate, combo.getText().split(" on ")[0] + combo_1.getText() + ".tsv"));
+					htmlContent = htmlContent.replace(toReplaceTemplate, whichFileType + fileName + combo_1.getText() + ".tsv");
+
+					if (combo_1.getText().equalsIgnoreCase(Constants.DISK_RW))
+					{
+						htmlContent = htmlContent.replace("Utilisation", "No.of reads/writes");
+					}
+					else if (combo_1.getText().equalsIgnoreCase(Constants.DISK_TIME))
+					{
+						htmlContent = htmlContent.replace("Utilisation", "Time spent in ms");
+					}
+					else if (combo_1.getText().equalsIgnoreCase(Constants.NETWORK))
+					{
+						htmlContent = htmlContent.replace("Utilisation", "No.of packets");
+					}
+
+					PrintWriter out = new PrintWriter(Constants.GRAPH_DATA_PATH + whichFileType + fileName + combo_1.getText() + ".html");
+					out.print(htmlContent);
 					out.close();
 				} finally {
 					br.close();
