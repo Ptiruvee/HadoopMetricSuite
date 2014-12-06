@@ -613,26 +613,17 @@ public class ClusterMaster {
 			try
 			{
 				dbManager.getConnection();
-
-				if (JobSession.currentRunNo == 1)
+				
+				if (JobSession.expectedRuns > 1)
 				{
-					int expNo = dbManager.getExperimentCount() + 1;
-
-					JobSession.jobID = expNo + Constants.DELIMITER + Constants.APPLICATIONCODES.get(JobSession.applicationType);
-
-					dbManager.insertIntoJobConfig();
-
-					if (JobSession.expectedRuns > 1)
-					{
-						JobSession.jobID = expNo + Constants.DELIMITER + JobSession.currentRunNo + Constants.DELIMITER + Constants.APPLICATIONCODES.get(JobSession.applicationType);
-					}
+					JobSession.jobID = JobSession.experimentNum + Constants.DELIMITER + JobSession.currentRunNo + Constants.DELIMITER + Constants.APPLICATIONCODES.get(JobSession.applicationType);
 				}
 				else
 				{
-					int expNo = dbManager.getExperimentCount();
-
-					JobSession.jobID = expNo + Constants.DELIMITER + JobSession.currentRunNo + Constants.DELIMITER + Constants.APPLICATIONCODES.get(JobSession.applicationType);
+					JobSession.jobID = JobSession.experimentNum + Constants.DELIMITER + Constants.APPLICATIONCODES.get(JobSession.applicationType);
 				}
+				
+				dbManager.insertIntoJobConfig();
 
 				UserLog.addToLog("Job ID " + JobSession.jobID);
 

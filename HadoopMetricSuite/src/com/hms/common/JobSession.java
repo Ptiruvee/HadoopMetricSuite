@@ -16,6 +16,7 @@ public class JobSession {
 	public static String applicationType;
 	public static int expectedRuns;
 	public static int currentRunNo = 1;
+	public static int experimentNum = 1;
 	
 	//JobConfig table model
 	public static String jobID;

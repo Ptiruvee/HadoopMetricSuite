@@ -34,18 +34,18 @@ public class ConfigurationScreen {
 	private Button btnReset;
 	private Label lblNewLabel;
 	private boolean shouldUpdateLog;
-	
+
 	private boolean isFromHome = false;
 
 	static final Logger log = (Logger) LogManager
 			.getLogger(ConfigurationScreen.class.getName());
-	
+
 	String selectedApplication = Constants.WORD_COUNT;
 
 	public void displayConfigScreen(Composite parent, String experimentName) {
 
 		isFromHome = true;
-		
+
 		text = new Text(parent, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
 		text.setEditable(false);
 		FormData fd_text = new FormData();
@@ -86,7 +86,7 @@ public class ConfigurationScreen {
 		fd_lblEnterTheVolume.left = new FormAttachment(lblNewLabel, 0, SWT.LEFT);
 		lblEnterTheVolume.setLayoutData(fd_lblEnterTheVolume);
 		lblEnterTheVolume
-				.setText("Enter the volume of input data\n*Maximum data 8 GB");
+		.setText("Enter the volume of input data\n*Maximum data 8 GB");
 
 		Label lblNewLabel_2 = new Label(composite, SWT.NONE);
 		FormData fd_lblNewLabel_2 = new FormData();
@@ -174,7 +174,7 @@ public class ConfigurationScreen {
 				else
 				{
 					int expNo = 0;
-					
+
 					try
 					{
 						DatabaseManager dbManager = new DatabaseManager();
@@ -186,12 +186,14 @@ public class ConfigurationScreen {
 					{
 						log.error("Exception inside experiment count fetch", e);
 					}
+
+					JobSession.experimentNum = expNo;
 					
 					lblNewLabel.setText("Experiment " + expNo);
 				}
-				
+
 				setWidgetEnabled(false);
-				
+
 				selectedApplication = combo.getText();
 
 				Thread hadoopJobThread = new Thread(new Runnable() {
@@ -237,10 +239,10 @@ public class ConfigurationScreen {
 
 					MessageBox messageBox = new MessageBox(
 							Display.getDefault().getActiveShell(), SWT.ICON_WARNING
-									| SWT.IGNORE);
+							| SWT.IGNORE);
 					messageBox.setText("Warning");
 					messageBox
-							.setMessage("There is something wrong with the input, please verify!");
+					.setMessage("There is something wrong with the input, please verify!");
 					messageBox.open();
 
 					return;
@@ -276,25 +278,25 @@ public class ConfigurationScreen {
 				JobSession.password)) {
 			if (master.fetchSlaveList())
 			{
-				if (master.transferAndRunScriptFile())
-				{
-					for (int i = 0; i < JobSession.expectedRuns; i++) {
-						 
+				for (int i = 0; i < JobSession.expectedRuns; i++) {
+
+					if (master.transferAndRunScriptFile())
+					{
 						JobSession.currentRunNo = i + 1;
-						
+
 						if (!master.runApplicationJob(selectedApplication))
 						{
 							UserLog.addToLog(Constants.ERRORCODES.get("HadoopRunImpossible"));
 							log.error(Constants.ERRORCODES.get("HadoopRunImpossible"));
-							
+
 							break;
 						}
 					}
-				}
-				else
-				{
-					UserLog.addToLog(Constants.ERRORCODES.get("HadoopRunImpossible"));
-					log.error(Constants.ERRORCODES.get("HadoopRunImpossible"));
+					else
+					{
+						UserLog.addToLog(Constants.ERRORCODES.get("HadoopRunImpossible"));
+						log.error(Constants.ERRORCODES.get("HadoopRunImpossible"));
+					}
 				}
 			}
 			else
@@ -302,12 +304,12 @@ public class ConfigurationScreen {
 				UserLog.addToLog(Constants.ERRORCODES.get("HadoopRunImpossible"));
 				log.error(Constants.ERRORCODES.get("HadoopRunImpossible"));
 			}
-			
+
 			master.disconnectMaster();
 		}
 
 		shouldUpdateLog = false;
-		
+
 		JobSession.cleanUp();
 
 		Display.getDefault().asyncExec(new Runnable() {
@@ -332,7 +334,7 @@ public class ConfigurationScreen {
 			log.info(Double.parseDouble(text_1.getText()));
 			log.info(Integer.parseInt(text_2.getText()));
 			log.info(Integer.parseInt(text_3.getText()));
-			
+
 			JobSession.applicationType = combo.getText();
 			JobSession.datasize = Double.parseDouble(text_1.getText());
 			JobSession.retrievalFrequency = Integer.parseInt(text_2.getText());

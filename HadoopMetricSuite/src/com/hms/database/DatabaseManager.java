@@ -953,10 +953,24 @@ public class DatabaseManager {
 
 		try {
 			Statement statement = connection.createStatement();
+			
+			//Single run experiment
 			ResultSet rs = statement
-					.executeQuery("Select count(jobid) from JobConfig");
+					.executeQuery("Select count(jobid) from JobConfig where runs=1");
 			while (rs.next()) {
 				count = Integer.parseInt(rs.getString("count(jobid)"));
+			}
+			
+			rs = statement
+					.executeQuery("Select count(jobid) from JobConfig where runs=2");
+			while (rs.next()) {
+				count += Integer.parseInt(rs.getString("count(jobid)"))/2;
+			}
+			
+			rs = statement
+					.executeQuery("Select count(jobid) from JobConfig where runs=3");
+			while (rs.next()) {
+				count += Integer.parseInt(rs.getString("count(jobid)"))/3;
 			}
 		} catch (SQLException e) {
 			// connection close failed.
