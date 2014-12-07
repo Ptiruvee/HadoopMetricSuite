@@ -89,8 +89,6 @@ public class GraphDisplayScreen {
 
 		try
 		{
-			System.out.println("********* Here ************");
-			System.out.println("********* Path ************ " + JobSession.getPathForResource("Default.html"));
 			browser.setUrl(JobSession.getPathForResource("Default.html"));
 		}
 		catch (Exception e)
@@ -167,8 +165,7 @@ public class GraphDisplayScreen {
 		}
 		catch (Exception e)
 		{
-			System.out.println("Database run number fetch exception");
-			e.printStackTrace();
+			log.error("Database run number fetch exception", e);
 		}
 		
 		if (runs > 1)
@@ -232,7 +229,7 @@ public class GraphDisplayScreen {
 		
 		wantAllRun = btnAllRuns.getSelection();
 		
-		System.out.println("Here Expected file name is " + JobSession.getGraphPath() + whichFileType + fileName + combo_1.getText() + ".html");
+		log.info("Here Expected file name is " + JobSession.getGraphPath() + whichFileType + fileName + combo_1.getText() + ".html");
 
 		File htmlFile = new File(JobSession.getGraphPath() + whichFileType + fileName + combo_1.getText() + ".html");
 
@@ -240,10 +237,7 @@ public class GraphDisplayScreen {
 		{
 			if (htmlFile.exists())
 			{
-				System.out.println("HTML File exists");
-				System.out.println("HTML Absolute exists " + htmlFile.getAbsolutePath());
-				System.out.println("HTML Canonical exists " + htmlFile.getCanonicalPath());
-				System.out.println("HTML Path exists " +htmlFile.getPath());
+				log.info("HTML File exists");
 				browser.setUrl(htmlFile.getCanonicalPath());
 			}
 			else

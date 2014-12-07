@@ -1,5 +1,7 @@
 package com.hms.userinterface;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.Logger;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
@@ -31,6 +33,8 @@ public class HomeScreen {
 	private String username;
 	private String password;
 	private String ipAddress;
+	
+	static final Logger log = (Logger) LogManager.getLogger(HomeScreen.class.getName());
 
 	public void displayHome()
 	{
@@ -169,7 +173,7 @@ public class HomeScreen {
 	    JobSession.hmsPath = dialog.open();
 	    JobSession.hmsPath += "/";
 	    
-	    System.out.println("HMS Path " + JobSession.hmsPath);
+	    log.info("HMS Path " + JobSession.hmsPath);
 	    
 	    try
 	    {
@@ -177,8 +181,7 @@ public class HomeScreen {
 	    }
 	    catch (Exception e)
 	    {
-	    	System.out.println("Excepiton in exporting sqlite outside jar");
-	    	e.printStackTrace();
+	    	log.error("Excepiton in exporting sqlite outside jar", e);
 	    }
 	}
 

@@ -107,10 +107,10 @@ public class DatabaseManager {
 		
 		if (wantAllRun && runs > 1)
 		{
-			System.out.println("Cluster info fetch for all runs display");
-			System.out.println("Runs " + runs);
-			System.out.println("Size " + jobID.split(Constants.DELIMITER).length);
-			System.out.println("Jobid " + jobID);
+			log.info("Cluster info fetch for all runs display");
+			log.info("Runs " + runs);
+			log.info("Size " + jobID.split(Constants.DELIMITER).length);
+			log.info("Jobid " + jobID);
 			
 			String tempJobType = jobID.split(Constants.DELIMITER)[2];
 			
@@ -193,7 +193,7 @@ public class DatabaseManager {
 				}
 			}
 			
-			System.out.println("All set to write to file for cluster multiple runs");
+			log.info("All set to write to file for cluster multiple runs");
 			
 			int interval = (int)Math.ceil(timeSize/Constants.MAXIMUM_DATA_VIEW);
 			int size = (int)Math.ceil(timeSize/interval);
@@ -210,7 +210,7 @@ public class DatabaseManager {
 		
 		if (type == Constants.NODE)
 		{
-			System.out.println("All node database fetch...");
+			log.info("All node database fetch...");
 			
 			Statement statement = connection.createStatement();
 			
@@ -219,8 +219,6 @@ public class DatabaseManager {
 			try {
 				ResultSet rs = statement
 						.executeQuery("SELECT distinct(nodeid) from platformmetrics where jobid='" + jobID + "'");
-				
-				System.out.println("All node database fetch query " + "SELECT distinct(nodeid) from platformmetrics where jobid='" + jobID + "'");
 				
 				while (rs.next()) {
 					nodeList.add( rs.getString("nodeid"));
@@ -309,7 +307,7 @@ public class DatabaseManager {
 				}
 			}
 			
-			System.out.println("All set to write to file");
+			log.info("All set to write to file");
 			
 			int interval = (int)Math.ceil(timeSize/Constants.MAXIMUM_DATA_VIEW);
 			int size = (int)Math.ceil(timeSize/interval);
@@ -360,18 +358,20 @@ public class DatabaseManager {
 			throw e;
 		}
 
-		System.out.println("Total fetched rows " + rowCount);
-		System.out.println("Total size " + time.size());
-		System.out.println("Maximum data limit " + Constants.MAXIMUM_DATA_VIEW);
-		System.out.println("Original Interval " + Math.ceil(time.size()/Constants.MAXIMUM_DATA_VIEW));
-		System.out.println("Modified Interval " + (int)Math.ceil(time.size()/Constants.MAXIMUM_DATA_VIEW));
+		log.info("Total fetched rows " + rowCount);
+		log.info("Total size " + time.size());
+		log.info("Maximum data limit " + Constants.MAXIMUM_DATA_VIEW);
+		log.info("Original Interval " + Math.ceil(time.size()/Constants.MAXIMUM_DATA_VIEW));
+		log.info("Modified Interval " + (int)Math.ceil(time.size()/Constants.MAXIMUM_DATA_VIEW));
 
 		if (time.size() > Constants.MAXIMUM_DATA_VIEW)
 		{
-			System.out.println("************* Going to normalize to show the best fit graph for cluster" + time.size()/Constants.MAXIMUM_DATA_VIEW);
+			log.info("************* Going to normalize to show the best fit graph for cluster" + time.size()/Constants.MAXIMUM_DATA_VIEW);
 
 			int size = time.size();
 			int interval = (int)Math.ceil(size/Constants.MAXIMUM_DATA_VIEW);
+			
+			log.info("******** Interval gap " + interval);
 			
 			writeDBToFile(JobSession.getGraphPath() + type + jobID + Constants.CPU +".tsv", averageValueToNormalizeForCluster(cpu, size), interval);
 			writeTwoValuesToFile(JobSession.getGraphPath() + type + jobID + Constants.DISK_RW +".tsv", "Reads", "Writes", averageValueToNormalizeForCluster(disk_read, size), averageValueToNormalizeForCluster(disk_write, size), interval);
@@ -381,9 +381,11 @@ public class DatabaseManager {
 		}
 		else
 		{
-			System.out.println("************* Just normal graph for cluster");
+			log.info("************* Just normal graph for cluster");
 
 			int interval = (int)Math.ceil(time.size()/Constants.MAXIMUM_DATA_VIEW);
+			
+			log.info("******** Interval gap " + interval);
 			
 			writeDBToFile(JobSession.getGraphPath() + type + jobID + Constants.CPU +".tsv", cpu, interval);
 			writeTwoValuesToFile(JobSession.getGraphPath() + type + jobID + Constants.DISK_RW +".tsv", "Reads", "Writes", disk_read, disk_write, interval);
@@ -402,8 +404,6 @@ public class DatabaseManager {
 		int interval = (int)Math.ceil(size/Constants.MAXIMUM_DATA_VIEW);
 		
 		HashMap<String, String> temp = new HashMap<>();
-
-		System.out.println("******** Interval gap " + interval);
 
 		//To handle zero based calculation
 		size--;
@@ -428,8 +428,6 @@ public class DatabaseManager {
 		//Just for the last value
 		temp.put(Integer.toString(time++), String.format("%.2f", value/interval));
 		
-		System.out.println("Temp size " + temp.size());
-		
 		return temp;
 	}
 	
@@ -440,8 +438,6 @@ public class DatabaseManager {
 		int count = 0;
 
 		ArrayList<String> temp = new ArrayList<>();
-
-		System.out.println("******** Interval gap " + interval);
 
 		//To handle zero based calculation
 		size--;
@@ -467,8 +463,6 @@ public class DatabaseManager {
 		//Just for the last value
 		temp.add(String.format("%.2f", value/interval));
 		
-		System.out.println("Temp size " + temp.size());
-		
 		return temp;
 	}
 
@@ -479,7 +473,7 @@ public class DatabaseManager {
 	
 	private void writeFileForEveryNode(String filename, HashMap<String, HashMap<String, String>> temp, int interval, int timeEnd) {
 		
-		System.out.println("File name " + filename);
+		log.info("File name " + filename);
 		
 		try {
 			FileWriter fileWriter = new FileWriter(filename);
@@ -522,7 +516,7 @@ public class DatabaseManager {
 	
 	private void writeTwoValueFileForEveryNode(String filename, String name1, String name2, HashMap<String, HashMap<String, String>> temp1, HashMap<String, HashMap<String, String>> temp2, int interval, int timeEnd) {
 		
-		System.out.println("File name " + filename);
+		log.info("File name " + filename);
 		
 		try {
 			FileWriter fileWriter = new FileWriter(filename);
@@ -572,7 +566,7 @@ public class DatabaseManager {
 	
 	private void writeThreeValueFileForEveryNode(String filename, String name1, String name2, String name3, HashMap<String, HashMap<String, String>> temp1, HashMap<String, HashMap<String, String>> temp2, HashMap<String, HashMap<String, String>> temp3, int interval, int timeEnd) {
 		
-		System.out.println("File name " + filename);
+		log.info("File name " + filename);
 		
 		try {
 			FileWriter fileWriter = new FileWriter(filename);
@@ -716,29 +710,25 @@ public class DatabaseManager {
 
 		//Compute time
 		long runningInterval = difference/1000; 
-		//(Long.parseLong(JobSession.endTime) - Long.parseLong(JobSession.startTime))/ 1000; 
-
-		System.out.println("Time interval " + runningInterval);
 
 		time.clear();
-		System.out.println("Original Time size " + time.size());
 
 		for (int i = 0; i < runningInterval; i++) {
 			time.add("" + i);
 		}
 
-		System.out.println("Before Time size " + time.size());
-		System.out.println("Before CPU size " + cpu.size());
-		System.out.println("Before Disk_read size " + disk_read.size());
-		System.out.println("Before Disk_write size " + disk_write.size());
-		System.out.println("Before Disk_readtime size " + disk_readtime.size());
-		System.out.println("Before Disk_writetime size " + disk_writetime.size());
-		System.out.println("Before Disk_iotime size " + disk_iotime.size());
-		System.out.println("Before Memory size " + memory.size());
-		System.out.println("Before Network_sent size " + network_sent.size());
-		System.out.println("Before Network_received size " + network_received.size());
+		log.info("Before Time size " + time.size());
+		log.info("Before CPU size " + cpu.size());
+		log.info("Before Disk_read size " + disk_read.size());
+		log.info("Before Disk_write size " + disk_write.size());
+		log.info("Before Disk_readtime size " + disk_readtime.size());
+		log.info("Before Disk_writetime size " + disk_writetime.size());
+		log.info("Before Disk_iotime size " + disk_iotime.size());
+		log.info("Before Memory size " + memory.size());
+		log.info("Before Network_sent size " + network_sent.size());
+		log.info("Before Network_received size " + network_received.size());
 
-		System.out.println("Gap " + (runningInterval - cpu.size()));
+		log.info("Gap " + (runningInterval - cpu.size()));
 		
 		//Add extra data if required
 		if (cpu.size() < runningInterval)
@@ -813,16 +803,16 @@ public class DatabaseManager {
 			}
 		}
 
-		System.out.println("After Time size " + time.size());
-		System.out.println("After CPU size " + cpu.size());
-		System.out.println("After Disk_read size " + disk_read.size());
-		System.out.println("After Disk_write size " + disk_write.size());
-		System.out.println("After Disk_readtime size " + disk_readtime.size());
-		System.out.println("After Disk_writetime size " + disk_writetime.size());
-		System.out.println("After Disk_iotime size " + disk_iotime.size());
-		System.out.println("After Memory size " + memory.size());
-		System.out.println("After Network_sent size " + network_sent.size());
-		System.out.println("After Network_received size " + network_received.size());
+		log.info("After Time size " + time.size());
+		log.info("After CPU size " + cpu.size());
+		log.info("After Disk_read size " + disk_read.size());
+		log.info("After Disk_write size " + disk_write.size());
+		log.info("After Disk_readtime size " + disk_readtime.size());
+		log.info("After Disk_writetime size " + disk_writetime.size());
+		log.info("After Disk_iotime size " + disk_iotime.size());
+		log.info("After Memory size " + memory.size());
+		log.info("After Network_sent size " + network_sent.size());
+		log.info("After Network_received size " + network_received.size());
 
 		try {
 			String query = null;
