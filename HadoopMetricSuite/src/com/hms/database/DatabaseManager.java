@@ -57,7 +57,7 @@ public class DatabaseManager {
 		Class.forName("org.sqlite.JDBC");
 		try {
 			connection = DriverManager
-					.getConnection("jdbc:sqlite:dat/HadoopMetrics.sqlite");
+					.getConnection("jdbc:sqlite:" + JobSession.hmsPath + "HadoopMetrics.sqlite");
 			connection.setAutoCommit(false);
 			return connection;
 		} catch (SQLException e) {
@@ -91,7 +91,7 @@ public class DatabaseManager {
 			tempJobid = jobID.split(Constants.DELIMITER)[0];
 		}
 		
-		File tsvFile = new File(Constants.GRAPH_DATA_PATH + type + tempJobid + Constants.CPU +".tsv");
+		File tsvFile = new File(JobSession.getGraphPath() + type + tempJobid + Constants.CPU +".tsv");
 
 		if (tsvFile.exists())
 		{
@@ -198,11 +198,11 @@ public class DatabaseManager {
 			int interval = (int)Math.ceil(timeSize/Constants.MAXIMUM_DATA_VIEW);
 			int size = (int)Math.ceil(timeSize/interval);
 			
-			writeFileForEveryNode(Constants.GRAPH_DATA_PATH + type + tempJobid + Constants.CPU +".tsv", cpuG, interval, size);
-			writeFileForEveryNode(Constants.GRAPH_DATA_PATH + type + tempJobid + Constants.MEMORY +".tsv", memoryG, interval, size);
-			writeTwoValueFileForEveryNode(Constants.GRAPH_DATA_PATH + type + tempJobid + Constants.DISK_RW +".tsv", "Reads", "Writes", disk_readG, disk_writeG, interval, size);
-			writeTwoValueFileForEveryNode(Constants.GRAPH_DATA_PATH + type + tempJobid + Constants.NETWORK +".tsv", "Sent", "Received", network_sentG, network_receivedG, interval, size);
-			writeThreeValueFileForEveryNode(Constants.GRAPH_DATA_PATH + type + tempJobid + Constants.DISK_TIME +".tsv", "Read time", "Write time", "IO Time", disk_readtimeG, disk_writetimeG, disk_iotimeG, interval, size);
+			writeFileForEveryNode(JobSession.getGraphPath() + type + tempJobid + Constants.CPU +".tsv", cpuG, interval, size);
+			writeFileForEveryNode(JobSession.getGraphPath() + type + tempJobid + Constants.MEMORY +".tsv", memoryG, interval, size);
+			writeTwoValueFileForEveryNode(JobSession.getGraphPath() + type + tempJobid + Constants.DISK_RW +".tsv", "Reads", "Writes", disk_readG, disk_writeG, interval, size);
+			writeTwoValueFileForEveryNode(JobSession.getGraphPath() + type + tempJobid + Constants.NETWORK +".tsv", "Sent", "Received", network_sentG, network_receivedG, interval, size);
+			writeThreeValueFileForEveryNode(JobSession.getGraphPath() + type + tempJobid + Constants.DISK_TIME +".tsv", "Read time", "Write time", "IO Time", disk_readtimeG, disk_writetimeG, disk_iotimeG, interval, size);
 			
 			return;
 			
@@ -314,11 +314,11 @@ public class DatabaseManager {
 			int interval = (int)Math.ceil(timeSize/Constants.MAXIMUM_DATA_VIEW);
 			int size = (int)Math.ceil(timeSize/interval);
 			
-			writeFileForEveryNode(Constants.GRAPH_DATA_PATH + type + jobID + Constants.CPU +".tsv", cpuG, interval, size);
-			writeFileForEveryNode(Constants.GRAPH_DATA_PATH + type + jobID + Constants.MEMORY +".tsv", memoryG, interval, size);
-			writeTwoValueFileForEveryNode(Constants.GRAPH_DATA_PATH + type + jobID + Constants.DISK_RW +".tsv", "Reads", "Writes", disk_readG, disk_writeG, interval, size);
-			writeTwoValueFileForEveryNode(Constants.GRAPH_DATA_PATH + type + jobID + Constants.NETWORK +".tsv", "Sent", "Received", network_sentG, network_receivedG, interval, size);
-			writeThreeValueFileForEveryNode(Constants.GRAPH_DATA_PATH + type + jobID + Constants.DISK_TIME +".tsv", "Read time", "Write time", "IO Time", disk_readtimeG, disk_writetimeG, disk_iotimeG, interval, size);
+			writeFileForEveryNode(JobSession.getGraphPath() + type + jobID + Constants.CPU +".tsv", cpuG, interval, size);
+			writeFileForEveryNode(JobSession.getGraphPath() + type + jobID + Constants.MEMORY +".tsv", memoryG, interval, size);
+			writeTwoValueFileForEveryNode(JobSession.getGraphPath() + type + jobID + Constants.DISK_RW +".tsv", "Reads", "Writes", disk_readG, disk_writeG, interval, size);
+			writeTwoValueFileForEveryNode(JobSession.getGraphPath() + type + jobID + Constants.NETWORK +".tsv", "Sent", "Received", network_sentG, network_receivedG, interval, size);
+			writeThreeValueFileForEveryNode(JobSession.getGraphPath() + type + jobID + Constants.DISK_TIME +".tsv", "Read time", "Write time", "IO Time", disk_readtimeG, disk_writetimeG, disk_iotimeG, interval, size);
 			
 			return;
 		}
@@ -373,11 +373,11 @@ public class DatabaseManager {
 			int size = time.size();
 			int interval = (int)Math.ceil(size/Constants.MAXIMUM_DATA_VIEW);
 			
-			writeDBToFile(Constants.GRAPH_DATA_PATH + type + jobID + Constants.CPU +".tsv", averageValueToNormalizeForCluster(cpu, size), interval);
-			writeTwoValuesToFile(Constants.GRAPH_DATA_PATH + type + jobID + Constants.DISK_RW +".tsv", "Reads", "Writes", averageValueToNormalizeForCluster(disk_read, size), averageValueToNormalizeForCluster(disk_write, size), interval);
-			writeThreeValuesToFile(Constants.GRAPH_DATA_PATH + type + jobID + Constants.DISK_TIME +".tsv", "Read time", "Write time", "IO Time", averageValueToNormalizeForCluster(disk_readtime, size), averageValueToNormalizeForCluster(disk_writetime, size), averageValueToNormalizeForCluster(disk_iotime, size), interval);
-			writeDBToFile(Constants.GRAPH_DATA_PATH + type + jobID + Constants.MEMORY +".tsv", averageValueToNormalizeForCluster(memory, size), interval);
-			writeTwoValuesToFile(Constants.GRAPH_DATA_PATH + type + jobID + Constants.NETWORK +".tsv", "Sent", "Received", averageValueToNormalizeForCluster(network_sent, size), averageValueToNormalizeForCluster(network_received, size), interval);
+			writeDBToFile(JobSession.getGraphPath() + type + jobID + Constants.CPU +".tsv", averageValueToNormalizeForCluster(cpu, size), interval);
+			writeTwoValuesToFile(JobSession.getGraphPath() + type + jobID + Constants.DISK_RW +".tsv", "Reads", "Writes", averageValueToNormalizeForCluster(disk_read, size), averageValueToNormalizeForCluster(disk_write, size), interval);
+			writeThreeValuesToFile(JobSession.getGraphPath() + type + jobID + Constants.DISK_TIME +".tsv", "Read time", "Write time", "IO Time", averageValueToNormalizeForCluster(disk_readtime, size), averageValueToNormalizeForCluster(disk_writetime, size), averageValueToNormalizeForCluster(disk_iotime, size), interval);
+			writeDBToFile(JobSession.getGraphPath() + type + jobID + Constants.MEMORY +".tsv", averageValueToNormalizeForCluster(memory, size), interval);
+			writeTwoValuesToFile(JobSession.getGraphPath() + type + jobID + Constants.NETWORK +".tsv", "Sent", "Received", averageValueToNormalizeForCluster(network_sent, size), averageValueToNormalizeForCluster(network_received, size), interval);
 		}
 		else
 		{
@@ -385,11 +385,11 @@ public class DatabaseManager {
 
 			int interval = (int)Math.ceil(time.size()/Constants.MAXIMUM_DATA_VIEW);
 			
-			writeDBToFile(Constants.GRAPH_DATA_PATH + type + jobID + Constants.CPU +".tsv", cpu, interval);
-			writeTwoValuesToFile(Constants.GRAPH_DATA_PATH + type + jobID + Constants.DISK_RW +".tsv", "Reads", "Writes", disk_read, disk_write, interval);
-			writeThreeValuesToFile(Constants.GRAPH_DATA_PATH + type + jobID + Constants.DISK_TIME +".tsv", "Read time", "Write time", "IO Time", disk_readtime, disk_writetime, disk_iotime, interval);
-			writeDBToFile(Constants.GRAPH_DATA_PATH + type + jobID + Constants.MEMORY +".tsv", memory, interval);
-			writeTwoValuesToFile(Constants.GRAPH_DATA_PATH + type + jobID + Constants.NETWORK +".tsv", "Sent", "Received", network_sent, network_received, interval);
+			writeDBToFile(JobSession.getGraphPath() + type + jobID + Constants.CPU +".tsv", cpu, interval);
+			writeTwoValuesToFile(JobSession.getGraphPath() + type + jobID + Constants.DISK_RW +".tsv", "Reads", "Writes", disk_read, disk_write, interval);
+			writeThreeValuesToFile(JobSession.getGraphPath() + type + jobID + Constants.DISK_TIME +".tsv", "Read time", "Write time", "IO Time", disk_readtime, disk_writetime, disk_iotime, interval);
+			writeDBToFile(JobSession.getGraphPath() + type + jobID + Constants.MEMORY +".tsv", memory, interval);
+			writeTwoValuesToFile(JobSession.getGraphPath() + type + jobID + Constants.NETWORK +".tsv", "Sent", "Received", network_sent, network_received, interval);
 		}
 	}
 

@@ -169,6 +169,8 @@ public class ConfigurationScreen {
 
 				if (isFromHome)
 				{
+					JobSession.experimentNum = Integer.parseInt(lblNewLabel.getText().split(" ")[1]);
+					
 					isFromHome = false;
 				}
 				else

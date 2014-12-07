@@ -82,7 +82,7 @@ public class ClusterSlave {
 			UserLog.addToLog(Constants.ERRORCODES.get("ScriptUpload"));
 			log.info(Constants.ERRORCODES.get("ScriptUpload"));
 
-			sshSlave.uploadSingleDataToServer(Constants.SCRIPT_PATH + Constants.SCRIPT_NAME, Constants.USER_PATH + Constants.SCRIPT_NAME);
+			sshSlave.uploadSingleDataToServer(JobSession.getPathForResource(Constants.SCRIPT_NAME), Constants.USER_PATH + Constants.SCRIPT_NAME);
 
 			CustomTask scriptPermission = new ExecCommand("chmod 755 " + Constants.USER_PATH + Constants.SCRIPT_NAME);
 			sshSlave.exec(scriptPermission);
@@ -276,44 +276,6 @@ public class ClusterSlave {
 		return false;
 	}
 	
-	public boolean readLogTemp(String logFileName)
-	{
-		if (sshSlave == null)
-		{
-			UserLog.addToLog(Constants.ERRORCODES.get("NoSlaveConnection"));
-			log.error(Constants.ERRORCODES.get("NoSlaveConnection"));
-		}
-
-		try {
-			CustomTask grep = new ExecCommand("cat " + "/afs/andrew.cmu.edu/usr14/aganeshu/" + logFileName);
-
-			Result res = sshSlave.exec(grep);
-
-			if (res.isSuccess)
-			{
-				UserLog.addToLog(Constants.ERRORCODES.get("LogFileRead"));
-				log.info(Constants.ERRORCODES.get("LogFileRead"));
-
-				PrintWriter logOutput = new PrintWriter(nodeID + Constants.TEMP_LOG_NAME + logFileName);
-				logOutput.println(res.sysout);
-				logOutput.close();
-
-				return true;
-			}                        
-			else
-			{
-				UserLog.addToLog(Constants.ERRORCODES.get("LogFileNoRead"));
-				log.info(Constants.ERRORCODES.get("LogFileNoRead"));
-			}
-		} catch (TaskExecFailException e) {
-			log.error("Read log file exception", e);
-		} catch (Exception e) {
-			log.error("Read log file exception", e);
-		}
-
-		return false;
-	}
-
 	public void disconnectSlave()
 	{
 		if (sshSlave != null)

@@ -1,6 +1,8 @@
 package com.hms.common;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -24,6 +26,8 @@ public class JobSession {
 	public static double datasize;
 	public static String startTime;
 	public static String endTime;
+	
+	public static String hmsPath;
 	
 	//Slave
 	public static Map<String, String> processIDOfSlaves = new HashMap<String, String>();
@@ -58,5 +62,46 @@ public class JobSession {
 				}
 			}
 		}
+	}
+	
+	public static void exportResourcesFromJAR() throws Exception {
+		
+		JobSession.exportFile("DataGenerator.jar");
+		JobSession.exportFile("Default.html");
+		JobSession.exportFile("HadoopMetrics.sqlite");
+		JobSession.exportFile("NoXML.html");
+		JobSession.exportFile("Platform.sh");
+		JobSession.exportFile("Template.html");
+		JobSession.exportFile("Template2.html");
+    }
+	
+	private static void exportFile(String resourceName) throws Exception
+	{
+		InputStream ddlStream = JobSession.class
+			    .getClassLoader().getResourceAsStream(resourceName);
+			FileOutputStream fos = null;
+			try {
+			    fos = new FileOutputStream(JobSession.hmsPath + resourceName);
+			    byte[] buf = new byte[2048];
+			    int r = ddlStream.read(buf);
+			    while(r != -1) {
+			        fos.write(buf, 0, r);
+			        r = ddlStream.read(buf);
+			    }
+			} finally {
+			    if(fos != null) {
+			        fos.close();
+			    }
+			}
+	}
+	
+	public static String getPathForResource(String resourceName)
+	{
+		return JobSession.hmsPath + resourceName;
+	}
+	
+	public static String getGraphPath()
+	{
+		return JobSession.hmsPath;
 	}
 }

@@ -19,6 +19,7 @@ import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
 
 import com.hms.common.Constants;
+import com.hms.common.JobSession;
 import com.hms.common.OldJob;
 import com.hms.database.DatabaseManager;
 
@@ -88,8 +89,9 @@ public class GraphDisplayScreen {
 
 		try
 		{
-			File f = new File("./dat/Default.html");
-			browser.setUrl(f.getCanonicalPath());
+			System.out.println("********* Here ************");
+			System.out.println("********* Path ************ " + JobSession.getPathForResource("Default.html"));
+			browser.setUrl(JobSession.getPathForResource("Default.html"));
 		}
 		catch (Exception e)
 		{
@@ -180,7 +182,7 @@ public class GraphDisplayScreen {
 		
 		if (combo_1.getText().equalsIgnoreCase(Constants.HADOOP_CONFIG))
 		{
-			File xmlFile = new File("./" + Constants.GRAPH_DATA_PATH + combo.getText().split(" on ")[0] + Constants.HADOOP_CONF_FILE);
+			File xmlFile = new File(JobSession.getGraphPath() + combo.getText().split(" on ")[0] + Constants.HADOOP_CONF_FILE);
 
 			try
 			{
@@ -190,7 +192,7 @@ public class GraphDisplayScreen {
 				}
 				else
 				{
-					File f = new File("./dat/NoXML.html");
+					File f = new File(JobSession.getPathForResource("NoXML.html"));
 					browser.setUrl(f.getCanonicalPath());
 				}
 			}
@@ -230,14 +232,18 @@ public class GraphDisplayScreen {
 		
 		wantAllRun = btnAllRuns.getSelection();
 		
-		System.out.println("Here Expected file name is " + "./" + Constants.GRAPH_DATA_PATH + whichFileType + fileName + combo_1.getText() + ".html");
+		System.out.println("Here Expected file name is " + JobSession.getGraphPath() + whichFileType + fileName + combo_1.getText() + ".html");
 
-		File htmlFile = new File("./" + Constants.GRAPH_DATA_PATH + whichFileType + fileName + combo_1.getText() + ".html");
+		File htmlFile = new File(JobSession.getGraphPath() + whichFileType + fileName + combo_1.getText() + ".html");
 
 		try
 		{
 			if (htmlFile.exists())
 			{
+				System.out.println("HTML File exists");
+				System.out.println("HTML Absolute exists " + htmlFile.getAbsolutePath());
+				System.out.println("HTML Canonical exists " + htmlFile.getCanonicalPath());
+				System.out.println("HTML Path exists " +htmlFile.getPath());
 				browser.setUrl(htmlFile.getCanonicalPath());
 			}
 			else
@@ -252,19 +258,19 @@ public class GraphDisplayScreen {
 
 				if (whichFileType == Constants.NODE)
 				{
-					templatePath = "./dat/Template2.html";
+					templatePath = JobSession.getPathForResource("Template2.html");
 					toReplaceTemplate = "Template2.tsv";
 				}
 				else
 				{
 					if (combo_1.getText().equalsIgnoreCase(Constants.CPU) || combo_1.getText().equalsIgnoreCase(Constants.MEMORY))
 					{
-						templatePath = "./dat/Template.html";
-						toReplaceTemplate = "Template.tsv";
+						templatePath = JobSession.getPathForResource("Template.html");
+						toReplaceTemplate = "Template1.tsv";
 					}
 					else
 					{
-						templatePath = "./dat/Template2.html";
+						templatePath = JobSession.getPathForResource("Template2.html");
 						toReplaceTemplate = "Template2.tsv";
 					}
 				}
@@ -296,11 +302,12 @@ public class GraphDisplayScreen {
 						htmlContent = htmlContent.replace("Utilisation", "No.of packets");
 					}
 
-					PrintWriter out = new PrintWriter(Constants.GRAPH_DATA_PATH + whichFileType + fileName + combo_1.getText() + ".html");
+					PrintWriter out = new PrintWriter(JobSession.getGraphPath() + whichFileType + fileName + combo_1.getText() + ".html");
 					out.print(htmlContent);
 					out.close();
 				} finally {
 					br.close();
+					System.out.println("HTML Created and going to load now");
 					browser.setUrl(htmlFile.getCanonicalPath());
 				}
 			}

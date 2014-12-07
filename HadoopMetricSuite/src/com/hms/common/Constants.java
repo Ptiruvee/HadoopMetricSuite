@@ -124,12 +124,7 @@ public class Constants {
 	public static final String USER_PATH = "/home/ec2-user/";
 	
 	//Script
-	public static final String SCRIPT_PATH = "scripts/";
 	public static final String SCRIPT_NAME = "Platform.sh";
-	
-	//Paths
-	public static final String GRAPH_DATA_PATH = "dat/graph/";
-	public static final String JAR_PATH = "applications/";
 	
 	//Log
 	public static final String TEMP_LOG_NAME = "_temp_";

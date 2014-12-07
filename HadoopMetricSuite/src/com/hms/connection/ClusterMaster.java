@@ -126,8 +126,8 @@ public class ClusterMaster {
 
 			UserLog.addToLog(Constants.ERRORCODES.get("ScriptUpload"));
 			log.info(Constants.ERRORCODES.get("ScriptUpload"));
-
-			sshMaster.uploadSingleDataToServer(Constants.SCRIPT_PATH + Constants.SCRIPT_NAME, Constants.USER_PATH + Constants.SCRIPT_NAME);
+			
+			sshMaster.uploadSingleDataToServer(JobSession.getPathForResource(Constants.SCRIPT_NAME), Constants.USER_PATH + Constants.SCRIPT_NAME);
 
 			CustomTask scriptPermission = new ExecCommand("chmod 755 " + Constants.USER_PATH + Constants.SCRIPT_NAME);
 			sshMaster.exec(scriptPermission);
@@ -207,7 +207,7 @@ public class ClusterMaster {
 
 		try
 		{
-			sshMaster.uploadSingleDataToServer(Constants.JAR_PATH + Constants.APPLICATIONTYPES.get("DataGen"), Constants.USER_PATH + Constants.APPLICATIONTYPES.get("DataGen"));
+			sshMaster.uploadSingleDataToServer(JobSession.getPathForResource(Constants.APPLICATIONTYPES.get("DataGen")), Constants.USER_PATH + Constants.APPLICATIONTYPES.get("DataGen"));
 
 			UserLog.addToLog(Constants.ERRORCODES.get("DGJarTransferSuccess"));
 			log.info(Constants.ERRORCODES.get("DGJarTransferSuccess"));
@@ -371,7 +371,7 @@ public class ClusterMaster {
 
 		try
 		{
-			sshMaster.uploadSingleDataToServer(Constants.JAR_PATH + Constants.APPLICATIONTYPES.get(type), Constants.USER_PATH + Constants.APPLICATIONTYPES.get(type));
+			sshMaster.uploadSingleDataToServer(JobSession.getPathForResource(Constants.APPLICATIONTYPES.get(type)), Constants.USER_PATH + Constants.APPLICATIONTYPES.get(type));
 
 			UserLog.addToLog(Constants.ERRORCODES.get("JarTransferSuccess"));
 			log.info(Constants.ERRORCODES.get("JarTransferSuccess"));
@@ -699,7 +699,7 @@ public class ClusterMaster {
 				UserLog.addToLog(Constants.ERRORCODES.get("ConfigFileRead"));
 				log.info(Constants.ERRORCODES.get("ConfigFileRead"));
 
-				PrintWriter logOutput = new PrintWriter(Constants.GRAPH_DATA_PATH + JobSession.jobID + Constants.HADOOP_CONF_FILE);
+				PrintWriter logOutput = new PrintWriter(JobSession.getGraphPath() + JobSession.jobID + Constants.HADOOP_CONF_FILE);
 				logOutput.println(res.sysout);
 				logOutput.close();
 

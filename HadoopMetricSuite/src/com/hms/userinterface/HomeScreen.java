@@ -7,6 +7,7 @@ import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.MessageBox;
@@ -136,6 +137,7 @@ public class HomeScreen {
 
 		shell.pack();
 		shell.open();
+		
 		while (!shell.isDisposed()) {
 			if (!display.readAndDispatch())
 				display.sleep();
@@ -158,6 +160,27 @@ public class HomeScreen {
 			shallProceed = true;
 		}
 	}
+	
+	private void chooseOutputPath()
+	{
+		DirectoryDialog dialog = new DirectoryDialog(shell);
+	    //dialog.setFilterPath("c:\\"); // Windows specific
+	    
+	    JobSession.hmsPath = dialog.open();
+	    JobSession.hmsPath += "/";
+	    
+	    System.out.println("HMS Path " + JobSession.hmsPath);
+	    
+	    try
+	    {
+	    	JobSession.exportResourcesFromJAR();
+	    }
+	    catch (Exception e)
+	    {
+	    	System.out.println("Excepiton in exporting sqlite outside jar");
+	    	e.printStackTrace();
+	    }
+	}
 
 	private void updateUI()
 	{
@@ -168,6 +191,8 @@ public class HomeScreen {
 				if (shallProceed)
 				{
 					shell.setVisible(false);
+					
+					chooseOutputPath();
 					
 					UserLog.getUserLog();
 
