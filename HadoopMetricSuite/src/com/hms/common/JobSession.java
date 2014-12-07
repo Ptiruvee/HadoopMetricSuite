@@ -102,6 +102,6 @@ public class JobSession {
 	
 	public static String getGraphPath()
 	{
-		return JobSession.hmsPath;
+		return JobSession.hmsPath + "graph/";
 	}
 }

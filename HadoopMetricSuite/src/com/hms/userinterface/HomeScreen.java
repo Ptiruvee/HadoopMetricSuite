@@ -1,5 +1,7 @@
 package com.hms.userinterface;
 
+import java.io.File;
+
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Logger;
 import org.eclipse.swt.SWT;
@@ -183,6 +185,9 @@ public class HomeScreen {
 	    {
 	    	log.error("Excepiton in exporting sqlite outside jar", e);
 	    }
+	    
+	    File dir = new File(JobSession.hmsPath + "graph");
+	    dir.mkdir();
 	}
 
 	private void updateUI()

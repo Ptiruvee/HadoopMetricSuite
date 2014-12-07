@@ -257,10 +257,15 @@ public class GraphDisplayScreen {
 				}
 				else
 				{
-					if (combo_1.getText().equalsIgnoreCase(Constants.CPU) || combo_1.getText().equalsIgnoreCase(Constants.MEMORY))
+					if (runs > 1 && btnAllRuns.getSelection())
+					{
+						templatePath = JobSession.getPathForResource("Template2.html");
+						toReplaceTemplate = "Template2.tsv";
+					}
+					else if (combo_1.getText().equalsIgnoreCase(Constants.CPU) || combo_1.getText().equalsIgnoreCase(Constants.MEMORY))
 					{
 						templatePath = JobSession.getPathForResource("Template.html");
-						toReplaceTemplate = "Template1.tsv";
+						toReplaceTemplate = "Template.tsv";
 					}
 					else
 					{
