@@ -47,8 +47,8 @@ public class ClusterSlave {
 			{
 				nodeID = ipAddress;
 				
-				UserLog.addToLog(Constants.ERRORCODES.get("SuccessSlaveConnection"));
-				log.info(Constants.ERRORCODES.get("SuccessSlaveConnection"));
+				UserLog.addToLog(Constants.ERRORCODES.get("SuccessSlaveConnection") + nodeID);
+				log.info(Constants.ERRORCODES.get("SuccessSlaveConnection") + nodeID);
 
 				return true;
 			}
@@ -124,7 +124,6 @@ public class ClusterSlave {
 
 		try {
 
-			UserLog.addToLog(Constants.ERRORCODES.get("ScriptProcessIDFetch"));
 			log.info(Constants.ERRORCODES.get("ScriptProcessIDFetch"));
 
 			CustomTask shellMaster = new ExecShellScript(Constants.USER_PATH.substring(0, Constants.USER_PATH.length()-1), "pgrep " + Constants.SCRIPT_NAME, "");
@@ -133,7 +132,6 @@ public class ClusterSlave {
 
 			if (resMaster.isSuccess)
 			{
-				UserLog.addToLog(Constants.ERRORCODES.get("ScriptProcessIDFetchSuccess"));
 				log.info(Constants.ERRORCODES.get("ScriptProcessIDFetchSuccess"));
 				
 				JobSession.processIDOfSlaves.put(nodeID, resMaster.sysout);
@@ -219,6 +217,9 @@ public class ClusterSlave {
 		
 		killScriptRun();
 
+		UserLog.addToLog(Constants.ERRORCODES.get("AboutToReadLogFile"));
+		log.info(Constants.ERRORCODES.get("AboutToReadLogFile"));
+		
 		if (readLog(Constants.CPU_LOG_NAME) && readLog(Constants.DISK_LOG_NAME) && readLog(Constants.MEM_LOG_NAME) && readLog(Constants.NET_LOG_NAME))
 		{
 			try
@@ -253,9 +254,6 @@ public class ClusterSlave {
 
 			if (res.isSuccess)
 			{
-				UserLog.addToLog(Constants.ERRORCODES.get("LogFileRead"));
-				log.info(Constants.ERRORCODES.get("LogFileRead"));
-
 				PrintWriter logOutput = new PrintWriter(nodeID + Constants.TEMP_LOG_NAME + logFileName);
 				logOutput.println(res.sysout);
 				logOutput.close();

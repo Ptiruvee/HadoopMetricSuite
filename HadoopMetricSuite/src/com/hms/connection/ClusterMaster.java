@@ -50,8 +50,8 @@ public class ClusterMaster {
 			{
 				nodeID = ipAddress;
 
-				UserLog.addToLog(Constants.ERRORCODES.get("SuccessMasterConnection"));
-				log.info(Constants.ERRORCODES.get("SuccessMasterConnection"));
+				UserLog.addToLog(Constants.ERRORCODES.get("SuccessMasterConnection") + nodeID);
+				log.info(Constants.ERRORCODES.get("SuccessMasterConnection") + nodeID);
 
 				return true;
 			}
@@ -169,7 +169,6 @@ public class ClusterMaster {
 
 		try {
 
-			UserLog.addToLog(Constants.ERRORCODES.get("ScriptProcessIDFetch"));
 			log.info(Constants.ERRORCODES.get("ScriptProcessIDFetch"));
 
 			CustomTask shellMaster = new ExecShellScript(Constants.USER_PATH.substring(0, Constants.USER_PATH.length()-1), "pgrep " + Constants.SCRIPT_NAME, "");
@@ -178,7 +177,6 @@ public class ClusterMaster {
 
 			if (resMaster.isSuccess)
 			{
-				UserLog.addToLog(Constants.ERRORCODES.get("ScriptProcessIDFetchSuccess"));
 				log.info(Constants.ERRORCODES.get("ScriptProcessIDFetchSuccess"));
 
 				scriptProcessID = resMaster.sysout;
@@ -464,6 +462,17 @@ public class ClusterMaster {
 						} catch (Exception e) {
 							log.error("Job execution exception", e);
 						}
+						
+						if (!jobResult)
+						{
+							killScriptRun();
+							cleanUpLogs();
+
+							if (slaveAddress != null)
+							{
+								cleanUpSlaves();
+							}
+						}
 					}
 					else
 					{
@@ -487,17 +496,6 @@ public class ClusterMaster {
 		{
 			UserLog.addToLog(Constants.ERRORCODES.get("HadoopRunImpossible"));
 			log.error(Constants.ERRORCODES.get("HadoopRunImpossible"));
-		}
-
-		if (!jobResult)
-		{
-			killScriptRun();
-			cleanUpLogs();
-
-			if (slaveAddress != null)
-			{
-				cleanUpSlaves();
-			}
 		}
 
 		return jobResult;
@@ -607,6 +605,9 @@ public class ClusterMaster {
 		killScriptRun();
 
 		JobSession.nodes = slaveAddress.length;
+		
+		UserLog.addToLog(Constants.ERRORCODES.get("AboutToReadLogFile"));
+		log.info(Constants.ERRORCODES.get("AboutToReadLogFile"));
 
 		if (readLog(Constants.CPU_LOG_NAME) && readLog(Constants.DISK_LOG_NAME) && readLog(Constants.MEM_LOG_NAME) && readLog(Constants.NET_LOG_NAME))
 		{
@@ -658,9 +659,6 @@ public class ClusterMaster {
 
 			if (res.isSuccess)
 			{
-				UserLog.addToLog(Constants.ERRORCODES.get("LogFileRead"));
-				log.info(Constants.ERRORCODES.get("LogFileRead"));
-
 				PrintWriter logOutput = new PrintWriter(nodeID + Constants.TEMP_LOG_NAME + logFileName);
 				logOutput.println(res.sysout);
 				logOutput.close();

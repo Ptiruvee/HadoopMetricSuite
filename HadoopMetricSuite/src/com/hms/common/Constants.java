@@ -46,7 +46,7 @@ public class Constants {
        aMap.put("JobAboutToRun", "Hadoop job will start now...");
        aMap.put("JobCannotRun", "Hadoop job cannot start now!");
 
-       aMap.put("LogFileRead", "Log file is about to be read...");
+       aMap.put("AboutToReadLogFile", "About to read Log files...");
        aMap.put("LogFileNoRead", "Unable to read Log file!");
        
        aMap.put("LogFileCleaned", "Log file has been removed...");

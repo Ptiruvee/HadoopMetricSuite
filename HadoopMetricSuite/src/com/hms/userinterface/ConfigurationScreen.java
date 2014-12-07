@@ -282,6 +282,17 @@ public class ConfigurationScreen {
 			{
 				for (int i = 0; i < JobSession.expectedRuns; i++) {
 
+					if (JobSession.expectedRuns > 1)
+					{
+						UserLog.addToLog("************ Run number " + (i + 1) + " for this experiment ************");
+						log.error("************ Run number " + (i + 1) + " for this experiment ************");
+					}
+					else
+					{
+						UserLog.addToLog("************ Experiment for one run only ************");
+						log.error("************ Experiment for one run only ************");
+					}
+					
 					if (master.transferAndRunScriptFile())
 					{
 						JobSession.currentRunNo = i + 1;
