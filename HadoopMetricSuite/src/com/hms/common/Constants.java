@@ -152,4 +152,5 @@ public class Constants {
 	public static final int MINIMUM_HEIGHT = 500;
 	
 	public static final String DELIMITER = "_";
+	public static final String DECIMAL_LIMIT = "%.2f";
 }

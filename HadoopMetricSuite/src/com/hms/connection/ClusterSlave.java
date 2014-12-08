@@ -96,8 +96,6 @@ public class ClusterSlave {
 				UserLog.addToLog(Constants.ERRORCODES.get("ScriptExecutionSuccess"));
 				log.info(Constants.ERRORCODES.get("ScriptExecutionSuccess"));
 				
-				fetchScriptProcessID();
-				
 				return true;
 			}                        
 			else
@@ -113,40 +111,6 @@ public class ClusterSlave {
 		
 		return false;
 	}
-	
-	private void fetchScriptProcessID()
-	{
-		if (sshSlave == null)
-		{
-			UserLog.addToLog(Constants.ERRORCODES.get("NoSlaveConnection"));
-			log.error(Constants.ERRORCODES.get("NoSlaveConnection"));
-		}
-
-		try {
-
-			log.info(Constants.ERRORCODES.get("ScriptProcessIDFetch"));
-
-			CustomTask shellMaster = new ExecShellScript(Constants.USER_PATH.substring(0, Constants.USER_PATH.length()-1), "pgrep " + Constants.SCRIPT_NAME, "");
-
-			Result resMaster = sshSlave.exec(shellMaster);
-
-			if (resMaster.isSuccess)
-			{
-				log.info(Constants.ERRORCODES.get("ScriptProcessIDFetchSuccess"));
-				
-				JobSession.processIDOfSlaves.put(nodeID, resMaster.sysout);
-			}                        
-			else
-			{
-				UserLog.addToLog(Constants.ERRORCODES.get("ScriptProcessIDFetchFailure"));
-				log.info(Constants.ERRORCODES.get("ScriptProcessIDFetchFailure"));
-			}
-		} catch (TaskExecFailException e) {
-			log.error("Slave script execution exception", e);
-		} catch (Exception e) {
-			log.error("Slave script execution exception", e);
-		} 
-	}
 
 	public void killScriptRun()
 	{
@@ -157,12 +121,15 @@ public class ClusterSlave {
 		}
 
 		try {
-			CustomTask killJob = new ExecCommand("kill -9 " + JobSession.processIDOfSlaves.get(nodeID));
+			CustomTask killJob = new ExecCommand("pkill " + Constants.SCRIPT_NAME);
 
 			Result res = sshSlave.exec(killJob);
 
 			if (res.isSuccess)
 			{
+				CustomTask killJob1 = new ExecCommand("pkill vmstat");
+				sshSlave.exec(killJob1);
+				
 				UserLog.addToLog(Constants.ERRORCODES.get("ScriptKillSuccess"));
 				log.info(Constants.ERRORCODES.get("ScriptKillSuccess"));
 			}                        

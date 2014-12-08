@@ -66,9 +66,19 @@ public class JobSession {
 	
 	public static void exportResourcesFromJAR() throws Exception {
 		
+		File dbFile = new File(JobSession.getPathForResource("HadoopMetrics.sqlite"));
+		
+		if (dbFile.exists())
+		{
+			System.out.println("DB File exists, so do not replace db file");
+		}
+		else
+		{
+			JobSession.exportFile("HadoopMetrics.sqlite");
+		}
+		
 		JobSession.exportFile("DataGenerator.jar");
 		JobSession.exportFile("Default.html");
-		JobSession.exportFile("HadoopMetrics.sqlite");
 		JobSession.exportFile("NoXML.html");
 		JobSession.exportFile("Platform.sh");
 		JobSession.exportFile("Template.html");

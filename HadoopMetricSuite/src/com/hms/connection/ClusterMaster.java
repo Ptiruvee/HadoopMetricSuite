@@ -23,7 +23,6 @@ public class ClusterMaster {
 
 	private SSHExec sshMaster = null;
 	private String[] slaveAddress = null;
-	private String scriptProcessID = null;
 	private String nodeID;
 
 	private DatabaseManager dbManager = new DatabaseManager();
@@ -131,17 +130,15 @@ public class ClusterMaster {
 
 			CustomTask scriptPermission = new ExecCommand("chmod 755 " + Constants.USER_PATH + Constants.SCRIPT_NAME);
 			sshMaster.exec(scriptPermission);
-
+			
 			CustomTask shellMaster = new ExecShellScript(Constants.USER_PATH.substring(0, Constants.USER_PATH.length()-1), "./" + Constants.SCRIPT_NAME + " " + JobSession.retrievalFrequency + " >> dummy.txt &", "");
-
+			
 			Result resMaster = sshMaster.exec(shellMaster);
 
 			if (resMaster.isSuccess)
 			{
 				UserLog.addToLog(Constants.ERRORCODES.get("ScriptExecutionSuccess"));
 				log.info(Constants.ERRORCODES.get("ScriptExecutionSuccess"));
-
-				fetchScriptProcessID();
 
 				return true;
 			}                        
@@ -157,40 +154,6 @@ public class ClusterMaster {
 		} 
 
 		return false;
-	}
-
-	private void fetchScriptProcessID()
-	{
-		if (sshMaster == null)
-		{
-			UserLog.addToLog(Constants.ERRORCODES.get("NoMasterConnection"));
-			log.error(Constants.ERRORCODES.get("NoMasterConnection"));
-		}
-
-		try {
-
-			log.info(Constants.ERRORCODES.get("ScriptProcessIDFetch"));
-
-			CustomTask shellMaster = new ExecShellScript(Constants.USER_PATH.substring(0, Constants.USER_PATH.length()-1), "pgrep " + Constants.SCRIPT_NAME, "");
-
-			Result resMaster = sshMaster.exec(shellMaster);
-
-			if (resMaster.isSuccess)
-			{
-				log.info(Constants.ERRORCODES.get("ScriptProcessIDFetchSuccess"));
-
-				scriptProcessID = resMaster.sysout;
-			}                        
-			else
-			{
-				UserLog.addToLog(Constants.ERRORCODES.get("ScriptProcessIDFetchFailure"));
-				log.info(Constants.ERRORCODES.get("ScriptProcessIDFetchFailure"));
-			}
-		} catch (TaskExecFailException e) {
-			log.error("Master script execution exception", e);
-		} catch (Exception e) {
-			log.error("Master script execution exception", e);
-		} 
 	}
 
 	private boolean transferDataGenerationJARFile()
@@ -328,7 +291,7 @@ public class ClusterMaster {
 
 		try {
 			String localPath = Constants.USER_PATH + "DataFile.txt";
-			String hdfsCopyCmd = Constants.USER_PATH + Constants.HADOOP_VERSION + Constants.HADOOP_BIN + " fs -copyFromLocal " + localPath +  " /home/user/input/";
+			String hdfsCopyCmd = Constants.USER_PATH + Constants.HADOOP_VERSION + Constants.HADOOP_BIN + " fs -moveFromLocal " + localPath +  " /home/user/input/";
 
 			CustomTask runJob = new ExecCommand(hdfsCopyCmd);
 
@@ -544,12 +507,15 @@ public class ClusterMaster {
 		}
 
 		try {
-			CustomTask killJob = new ExecCommand("kill -9 " + scriptProcessID);
+			CustomTask killJob = new ExecCommand("pkill " + Constants.SCRIPT_NAME);
 
 			Result res = sshMaster.exec(killJob);
 
 			if (res.isSuccess)
 			{
+				CustomTask killJob1 = new ExecCommand("pkill vmstat");
+				sshMaster.exec(killJob1);
+				
 				UserLog.addToLog(Constants.ERRORCODES.get("ScriptKillSuccess"));
 				log.info(Constants.ERRORCODES.get("ScriptKillSuccess"));
 			}                        

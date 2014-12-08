@@ -191,6 +191,7 @@ public class ConfigurationScreen {
 
 					JobSession.experimentNum = expNo;
 					
+					text.setText("");
 					lblNewLabel.setText("Experiment " + expNo);
 				}
 

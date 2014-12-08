@@ -1,7 +1,6 @@
 package com.hms.database;
 
 import java.io.BufferedReader;
-
 import java.io.BufferedWriter;
 import java.io.File;
 import java.io.FileReader;
@@ -151,15 +150,15 @@ public class DatabaseManager {
 							.executeQuery("SELECT timestamp, avg(CPU), avg(Disk_read), avg(Disk_write), avg(Disk_readtime), avg(Disk_writetime), avg(Disk_iotime), avg(Memory), avg(Network_sent), avg(Network_received) FROM PlatformMetrics where jobid='" + jobID +"' group by timestamp");
 					while (rs.next()) {
 						time.add( rs.getString("timestamp"));
-						cpu.add( String.format("%.2f", rs.getDouble("avg(CPU)")));
-						disk_read.add( String.format("%.2f", rs.getDouble("avg(Disk_read)")));
-						disk_write.add( String.format("%.2f", rs.getDouble("avg(Disk_write)")));
-						disk_readtime.add( String.format("%.2f", rs.getDouble("avg(Disk_readtime)")));
-						disk_writetime.add( String.format("%.2f", rs.getDouble("avg(Disk_writetime)")));
-						disk_iotime.add( String.format("%.2f", rs.getDouble("avg(Disk_iotime)")));
-						memory.add( String.format("%.2f", rs.getDouble("avg(Memory)")));
-						network_sent.add( String.format("%.2f", rs.getDouble("avg(Network_sent)")));
-						network_received.add( String.format("%.2f", rs.getDouble("avg(Network_received)")));
+						cpu.add( String.format(Constants.DECIMAL_LIMIT, rs.getDouble("avg(CPU)")));
+						disk_read.add( String.format(Constants.DECIMAL_LIMIT, rs.getDouble("avg(Disk_read)")));
+						disk_write.add( String.format(Constants.DECIMAL_LIMIT, rs.getDouble("avg(Disk_write)")));
+						disk_readtime.add( String.format(Constants.DECIMAL_LIMIT, rs.getDouble("avg(Disk_readtime)")));
+						disk_writetime.add( String.format(Constants.DECIMAL_LIMIT, rs.getDouble("avg(Disk_writetime)")));
+						disk_iotime.add( String.format(Constants.DECIMAL_LIMIT, rs.getDouble("avg(Disk_iotime)")));
+						memory.add( String.format(Constants.DECIMAL_LIMIT, rs.getDouble("avg(Memory)")));
+						network_sent.add( String.format(Constants.DECIMAL_LIMIT, rs.getDouble("avg(Network_sent)")));
+						network_received.add( String.format(Constants.DECIMAL_LIMIT, rs.getDouble("avg(Network_received)")));
 					}
 					
 					timeSize = time.size();
@@ -265,18 +264,20 @@ public class DatabaseManager {
 							.executeQuery("SELECT timestamp, CPU, Disk_read, Disk_write, Disk_readtime, Disk_writetime, Disk_iotime, Memory, Network_sent, Network_received FROM PlatformMetrics where jobid='" + jobID +"' AND nodeid ='" + nodeID + "' group by timestamp");
 					while (rs.next()) {
 						time.add( rs.getString("timestamp"));
-						cpu.add( String.format("%.2f", rs.getDouble("CPU")));
-						disk_read.add( String.format("%.2f", rs.getDouble("Disk_read")));
-						disk_write.add( String.format("%.2f", rs.getDouble("Disk_write")));
-						disk_readtime.add( String.format("%.2f", rs.getDouble("Disk_readtime")));
-						disk_writetime.add( String.format("%.2f", rs.getDouble("Disk_writetime")));
-						disk_iotime.add( String.format("%.2f", rs.getDouble("Disk_iotime")));
-						memory.add( String.format("%.2f", rs.getDouble("Memory")));
-						network_sent.add( String.format("%.2f", rs.getDouble("Network_sent")));
-						network_received.add( String.format("%.2f", rs.getDouble("Network_received")));
+						cpu.add( String.format(Constants.DECIMAL_LIMIT, rs.getDouble("CPU")));
+						disk_read.add( String.format(Constants.DECIMAL_LIMIT, rs.getDouble("Disk_read")));
+						disk_write.add( String.format(Constants.DECIMAL_LIMIT, rs.getDouble("Disk_write")));
+						disk_readtime.add( String.format(Constants.DECIMAL_LIMIT, rs.getDouble("Disk_readtime")));
+						disk_writetime.add( String.format(Constants.DECIMAL_LIMIT, rs.getDouble("Disk_writetime")));
+						disk_iotime.add( String.format(Constants.DECIMAL_LIMIT, rs.getDouble("Disk_iotime")));
+						memory.add( String.format(Constants.DECIMAL_LIMIT, rs.getDouble("Memory")));
+						network_sent.add( String.format(Constants.DECIMAL_LIMIT, rs.getDouble("Network_sent")));
+						network_received.add( String.format(Constants.DECIMAL_LIMIT, rs.getDouble("Network_received")));
 					}
 					
 					timeSize = time.size();
+					
+					log.info("Time for each node " + timeSize);
 					
 					cpuG.put(nodeID, averageValueToNormalize(cpu, timeSize));
 					disk_readG.put(nodeID, averageValueToNormalize(disk_read, timeSize));
@@ -312,6 +313,8 @@ public class DatabaseManager {
 			int interval = (int)Math.ceil(timeSize/Constants.MAXIMUM_DATA_VIEW);
 			int size = (int)Math.ceil(timeSize/interval);
 			
+			log.info("Each node interval " + interval);
+			
 			writeFileForEveryNode(JobSession.getGraphPath() + type + jobID + Constants.CPU +".tsv", cpuG, interval, size);
 			writeFileForEveryNode(JobSession.getGraphPath() + type + jobID + Constants.MEMORY +".tsv", memoryG, interval, size);
 			writeTwoValueFileForEveryNode(JobSession.getGraphPath() + type + jobID + Constants.DISK_RW +".tsv", "Reads", "Writes", disk_readG, disk_writeG, interval, size);
@@ -340,15 +343,15 @@ public class DatabaseManager {
 					.executeQuery("SELECT timestamp, avg(CPU), avg(Disk_read), avg(Disk_write), avg(Disk_readtime), avg(Disk_writetime), avg(Disk_iotime), avg(Memory), avg(Network_sent), avg(Network_received) FROM PlatformMetrics where jobid='" + jobID +"' group by timestamp");
 			while (rs.next()) {
 				time.add( rs.getString("timestamp"));
-				cpu.add( String.format("%.2f", rs.getDouble("avg(CPU)")));
-				disk_read.add( String.format("%.2f", rs.getDouble("avg(Disk_read)")));
-				disk_write.add( String.format("%.2f", rs.getDouble("avg(Disk_write)")));
-				disk_readtime.add( String.format("%.2f", rs.getDouble("avg(Disk_readtime)")));
-				disk_writetime.add( String.format("%.2f", rs.getDouble("avg(Disk_writetime)")));
-				disk_iotime.add( String.format("%.2f", rs.getDouble("avg(Disk_iotime)")));
-				memory.add( String.format("%.2f", rs.getDouble("avg(Memory)")));
-				network_sent.add( String.format("%.2f", rs.getDouble("avg(Network_sent)")));
-				network_received.add( String.format("%.2f", rs.getDouble("avg(Network_received)")));
+				cpu.add( String.format(Constants.DECIMAL_LIMIT, rs.getDouble("avg(CPU)")));
+				disk_read.add( String.format(Constants.DECIMAL_LIMIT, rs.getDouble("avg(Disk_read)")));
+				disk_write.add( String.format(Constants.DECIMAL_LIMIT, rs.getDouble("avg(Disk_write)")));
+				disk_readtime.add( String.format(Constants.DECIMAL_LIMIT, rs.getDouble("avg(Disk_readtime)")));
+				disk_writetime.add( String.format(Constants.DECIMAL_LIMIT, rs.getDouble("avg(Disk_writetime)")));
+				disk_iotime.add( String.format(Constants.DECIMAL_LIMIT, rs.getDouble("avg(Disk_iotime)")));
+				memory.add( String.format(Constants.DECIMAL_LIMIT, rs.getDouble("avg(Memory)")));
+				network_sent.add( String.format(Constants.DECIMAL_LIMIT, rs.getDouble("avg(Network_sent)")));
+				network_received.add( String.format(Constants.DECIMAL_LIMIT, rs.getDouble("avg(Network_received)")));
 
 				rowCount++;
 			}
@@ -417,7 +420,7 @@ public class DatabaseManager {
 				value = value/interval;
 				count = 0;
 
-				temp.put(Integer.toString(time++), String.format("%.2f", value));
+				temp.put(Integer.toString(time++), String.format(Constants.DECIMAL_LIMIT, value));
 				
 				value = 0;
 			}
@@ -426,7 +429,7 @@ public class DatabaseManager {
 		}
 
 		//Just for the last value
-		temp.put(Integer.toString(time++), String.format("%.2f", value/interval));
+		temp.put(Integer.toString(time++), String.format(Constants.DECIMAL_LIMIT, value/count));
 		
 		return temp;
 	}
@@ -452,7 +455,7 @@ public class DatabaseManager {
 				value = value/interval;
 				count = 0;
 
-				temp.add(String.format("%.2f", value));
+				temp.add(String.format(Constants.DECIMAL_LIMIT, value));
 				
 				value = 0;
 			}
@@ -461,7 +464,7 @@ public class DatabaseManager {
 		}
 
 		//Just for the last value
-		temp.add(String.format("%.2f", value/interval));
+		temp.add(String.format(Constants.DECIMAL_LIMIT, value/count));
 		
 		return temp;
 	}
@@ -495,7 +498,7 @@ public class DatabaseManager {
 			
 			for (int i = 0; i < timeEnd; i++) {
 				
-				fileString.append("" + i);
+				fileString.append("" + i * interval);
 				fileString.append("\t");
 				
 				for (String nodeID : temp.keySet()) {
@@ -540,7 +543,7 @@ public class DatabaseManager {
 			
 			for (int i = 0; i < timeEnd; i++) {
 				
-				fileString.append("" + i);
+				fileString.append("" + i * interval);
 				fileString.append("\t");
 				
 				for (String nodeID : temp1.keySet()) {
@@ -592,7 +595,7 @@ public class DatabaseManager {
 			
 			for (int i = 0; i < timeEnd; i++) {
 				
-				fileString.append("" + i);
+				fileString.append("" + i * interval);
 				fileString.append("\t");
 				
 				for (String nodeID : temp1.keySet()) {
@@ -700,13 +703,13 @@ public class DatabaseManager {
 
 		String start = gmtFormat.format(stime);
 		String end = gmtFormat.format(etime);
-		log.error("Start time " + start);
-		log.error("End time " + end);
+		log.info("Start time " + start);
+		log.info("End time " + end);
 
 		long difference = etime.getTime() - stime.getTime(); 
 
-		log.error("Diff " + difference);
-		log.error("Diff 1 " + difference/1000);
+		log.info("Diff " + difference);
+		log.info("Diff 1 " + difference/1000);
 
 		//Compute time
 		long runningInterval = difference/1000; 
@@ -843,6 +846,12 @@ public class DatabaseManager {
 
 	private void readLogFile(String logFileName, String type)
 	{
+		if (type.equalsIgnoreCase(Constants.CPU))
+		{
+			readCPULogFile(logFileName);
+			return;
+		}
+		
 		ArrayList<String> temp = new ArrayList<>();
 		ArrayList<String> temp1 = new ArrayList<>();
 		ArrayList<String> temp2 = new ArrayList<>();
@@ -857,6 +866,7 @@ public class DatabaseManager {
 
 				String line = bufferReadForFile.readLine();
 				String[] lineContent;
+				
 				while (line != null) {
 					if (line.length() == 0) {
 						line = bufferReadForFile.readLine();
@@ -902,11 +912,7 @@ public class DatabaseManager {
 					line = bufferReadForFile.readLine();
 				}
 
-				if (type.equalsIgnoreCase(Constants.CPU))
-				{
-					cpu = temp;
-				}
-				else if (type.equalsIgnoreCase(Constants.DISK))
+				if (type.equalsIgnoreCase(Constants.DISK))
 				{
 					disk_read = temp;
 					disk_write = temp1;
@@ -934,7 +940,121 @@ public class DatabaseManager {
 		{
 			log.error("Database log file read exception", e);
 		}
+	} 
+	
+	private void readCPULogFile(String logFileName)
+	{
+		log.info("******************* CPU ******************");
+		log.info("CPU filepath " + logFileName);
+		
+		ArrayList<String> temp = new ArrayList<>();
+		
+		Date stime = new Date(Long.valueOf(JobSession.startTime) * 1000);
+		Date etime = new Date(Long.valueOf(JobSession.endTime) * 1000);
+		
+		long difference = (etime.getTime() - stime.getTime())/1000; 
+		
+		DateFormat gmtFormat = new SimpleDateFormat("EEE MMM dd HH:mm:ss z yyyy");
+		gmtFormat.setTimeZone(TimeZone.getTimeZone("EST"));
 
+		String start = gmtFormat.format(stime);
+		String end = gmtFormat.format(etime);
+		log.error("Start time " + start);
+		log.error("End time " + end);
+		
+		log.info("Difference " + difference);
+		
+		try
+		{
+			BufferedReader bufferReadForFile = new BufferedReader(
+					new FileReader(logFileName));
+			try {
+
+				String line = bufferReadForFile.readLine();
+				String[] lineContent;
+				
+				log.info("Line " + line);
+				log.info("Inside date " + gmtFormat.format(new Date(Long.valueOf(line) * 1000)));
+				
+				long startingDiff = 0;
+				
+				if (line.length() > 0)
+				{
+					Date starttime = new Date(Long.parseLong(line) * 1000);
+					startingDiff = (stime.getTime() - starttime.getTime())/1000;
+				}
+				
+				log.info("Staring diff " + startingDiff);
+				
+				//To skip second, third line and start reading from fourth line
+				line = bufferReadForFile.readLine();
+				line = bufferReadForFile.readLine();
+				line = bufferReadForFile.readLine();
+				
+				int lineContentLen = 0;
+				
+				double util = 0;
+				
+				while (line != null) {
+					
+					if (difference == 0)
+					{
+						break;
+					}
+					
+					if (line.length() == 0) {
+						line = bufferReadForFile.readLine();
+						continue;
+					}
+					
+					if (startingDiff > 0)
+					{
+						line = bufferReadForFile.readLine();
+						startingDiff--;
+						continue;
+					}
+
+					lineContent = line.split(" ");
+					lineContentLen = lineContent.length;
+					
+					log.info("Line " + line);
+					log.info("LineContent length " + lineContentLen);
+					
+					if (lineContentLen > 5)
+					{
+						try
+						{
+							util = (100 - Integer.parseInt(lineContent[lineContentLen-5]))/100.0;
+							
+							temp.add("" + util);
+							log.info("LineContent idle " + lineContent[lineContentLen-5]);
+							log.info("LineContent util " + util);
+						}
+						catch (Exception e)
+						{
+							log.error("Excpetion when trying to compute CPU utilization");
+						}
+					}
+
+					line = bufferReadForFile.readLine();
+					
+					difference--;
+				}
+				
+				log.info("CPU utilization done " + temp.size());
+				cpu = temp;
+
+			} catch (Exception e) {
+				log.error("CPU log content exception", e);
+			}
+			finally {
+				bufferReadForFile.close();
+			}
+		}
+		catch (Exception e)
+		{
+			log.error("Database log file read exception", e);
+		}
 	} 
 
 	public int getExperimentCount()

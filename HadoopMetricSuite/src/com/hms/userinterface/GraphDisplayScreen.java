@@ -306,7 +306,7 @@ public class GraphDisplayScreen {
 					out.close();
 				} finally {
 					br.close();
-					System.out.println("HTML Created and going to load now");
+					log.info("HTML Created and going to load now");
 					browser.setUrl(htmlFile.getCanonicalPath());
 				}
 			}
