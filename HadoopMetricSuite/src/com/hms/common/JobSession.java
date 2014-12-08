@@ -83,6 +83,8 @@ public class JobSession {
 		JobSession.exportFile("Platform.sh");
 		JobSession.exportFile("Template.html");
 		JobSession.exportFile("Template2.html");
+		JobSession.exportFile("NoAppMetrics.html");
+		JobSession.exportFile(Constants.APPLICATIONTYPES.get(Constants.WORD_COUNT));
     }
 	
 	private static void exportFile(String resourceName) throws Exception

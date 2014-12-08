@@ -356,6 +356,10 @@ public class ClusterMaster {
 		boolean jobResult = false;
 
 		//transferApplicationJARFile
+		if (type.equalsIgnoreCase(Constants.WORD_COUNT))
+		{
+			transferApplicationJARFile(type);
+		}
 
 		if (transferDataGenerationJARFile())
 		{
@@ -373,7 +377,7 @@ public class ClusterMaster {
 
 							if (type.equalsIgnoreCase(Constants.WORD_COUNT))
 							{
-								applicationPath = "/home/ec2-user/hadoop-2.5.0/share/hadoop/mapreduce/hadoop-mapreduce-examples-2.5.0.jar wordcount"; 
+								applicationPath = Constants.USER_PATH + Constants.APPLICATIONTYPES.get(type) + " " + Constants.WORD_COUNT;
 							}
 							else if (type.equalsIgnoreCase(Constants.GREP))
 							{
@@ -414,6 +418,8 @@ public class ClusterMaster {
 								readLogFile();
 
 								readConfigFile();
+								
+								readAppMetrics();
 							}                        
 							else
 							{
@@ -678,6 +684,44 @@ public class ClusterMaster {
 			log.error("Read config file exception", e);
 		} catch (Exception e) {
 			log.error("Read config file exception", e);
+		}
+
+		return false;
+	}
+	
+	private boolean readAppMetrics()
+	{
+		if (sshMaster == null)
+		{
+			UserLog.addToLog(Constants.ERRORCODES.get("NoMasterConnection"));
+			log.error(Constants.ERRORCODES.get("NoMasterConnection"));
+		}
+
+		try {
+			CustomTask grep = new ExecCommand("cat " + Constants.USER_PATH + Constants.APP_LOG_NAME);
+
+			Result res = sshMaster.exec(grep);
+
+			if (res.isSuccess)
+			{
+				UserLog.addToLog(Constants.ERRORCODES.get("AppMetricsFileRead"));
+				log.info(Constants.ERRORCODES.get("AppMetricsFileRead"));
+
+				PrintWriter logOutput = new PrintWriter(JobSession.getGraphPath() + JobSession.jobID + Constants.APP_LOG_NAME);
+				logOutput.println(res.sysout);
+				logOutput.close();
+
+				return true;
+			}                        
+			else
+			{
+				UserLog.addToLog(Constants.ERRORCODES.get("AppMetricsFileNoRead"));
+				log.info(Constants.ERRORCODES.get("AppMetricsFileNoRead"));
+			}
+		} catch (TaskExecFailException e) {
+			log.error("Read app metrics file exception", e);
+		} catch (Exception e) {
+			log.error("Read app metrics file exception", e);
 		}
 
 		return false;

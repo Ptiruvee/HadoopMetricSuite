@@ -54,6 +54,9 @@ public class Constants {
        
        aMap.put("ConfigFileRead", "Hadoop config file is about to be read...");
        aMap.put("ConfigFileNoRead", "Unable to read hadoop config file!");
+       
+       aMap.put("AppMetricsFileRead", "Application metrics file is about to be read...");
+       aMap.put("AppMetricsFileNoRead", "Unable to read application metrics file!");
 
        aMap.put("ScriptKillSuccess", "Stopped script running in the background...");
        aMap.put("ScriptKillFailure", "Unable to terminate script running in the background!");
@@ -119,6 +122,9 @@ public class Constants {
    
    //Hadoop configuration
    public static final String HADOOP_CONFIG = "Hadoop configuration";
+   
+   //Application metrics
+   public static final String APP_METRICS = "Application metrics";
 
 	//User path
 	public static final String USER_PATH = "/home/ec2-user/";
@@ -132,6 +138,7 @@ public class Constants {
 	public static final String DISK_LOG_NAME = "hms_disk.txt";
 	public static final String MEM_LOG_NAME = "hms_memory.txt";
 	public static final String NET_LOG_NAME = "hms_network.txt";
+	public static final String APP_LOG_NAME = "AppMetrics.txt";
 	
 	//Hadoop version & path
 	public static final String HADOOP_VERSION = "hadoop-2.5.0";

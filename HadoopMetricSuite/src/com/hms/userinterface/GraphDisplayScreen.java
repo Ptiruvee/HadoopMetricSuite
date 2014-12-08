@@ -63,7 +63,7 @@ public class GraphDisplayScreen {
 
 		combo_1 = new Combo(parent, SWT.NONE);
 		combo_1.setItems(new String[] { Constants.CPU, Constants.DISK_RW, Constants.DISK_TIME, 
-				Constants.MEMORY, Constants.NETWORK, Constants.HADOOP_CONFIG});
+				Constants.MEMORY, Constants.NETWORK, Constants.HADOOP_CONFIG, Constants.APP_METRICS});
 		combo_1.select(0);
 		combo_1.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -177,7 +177,29 @@ public class GraphDisplayScreen {
 			btnAllRuns.setVisible(false);
 		}
 		
-		if (combo_1.getText().equalsIgnoreCase(Constants.HADOOP_CONFIG))
+		if (combo_1.getText().equalsIgnoreCase(Constants.APP_METRICS))
+		{
+			File appMetricsFile = new File(JobSession.getGraphPath() + combo.getText().split(" on ")[0] + Constants.APP_LOG_NAME);
+
+			try
+			{
+				if (appMetricsFile.exists())
+				{
+					browser.setUrl(appMetricsFile.getCanonicalPath());
+				}
+				else
+				{
+					File f = new File(JobSession.getPathForResource("NoAppMetrics.html"));
+					browser.setUrl(f.getCanonicalPath());
+				}
+			}
+			catch (Exception e)
+			{
+				log.error("XML exception", e);
+			}
+			return;
+		}
+		else if (combo_1.getText().equalsIgnoreCase(Constants.HADOOP_CONFIG))
 		{
 			File xmlFile = new File(JobSession.getGraphPath() + combo.getText().split(" on ")[0] + Constants.HADOOP_CONF_FILE);
 
@@ -197,6 +219,7 @@ public class GraphDisplayScreen {
 			{
 				log.error("XML exception", e);
 			}
+			
 			return;
 		}
 		
