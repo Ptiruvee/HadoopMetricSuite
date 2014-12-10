@@ -7,6 +7,7 @@ import org.apache.logging.log4j.core.Logger;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -40,6 +41,8 @@ public class HomeScreen {
 
 	public void displayHome()
 	{
+		JobSession.findOutOS();
+		
 		//Clean up old files
 		JobSession.startUp();
 		
@@ -51,6 +54,7 @@ public class HomeScreen {
 		shell.setLayout(new FormLayout());
 
 		Label lblIPAddress = new Label(shell, SWT.NONE);
+		lblIPAddress.setFont(new Font(Display.getCurrent(), Constants.fontData));
 		FormData fd_lblIPAddress = new FormData();
 		fd_lblIPAddress.top = new FormAttachment(34);
 		fd_lblIPAddress.left = new FormAttachment(40);
@@ -58,6 +62,7 @@ public class HomeScreen {
 		lblIPAddress.setText("IP Address");
 
 		textIPAddr = new Text(shell, SWT.BORDER);
+		textIPAddr.setFont(new Font(Display.getCurrent(), Constants.fontData));
 		FormData fd_textIPAddr = new FormData();
 		fd_textIPAddr.width = 150;
 		fd_textIPAddr.height = 20;
@@ -66,6 +71,7 @@ public class HomeScreen {
 		textIPAddr.setLayoutData(fd_textIPAddr);
 
 		Label lblUsername = new Label(shell, SWT.NONE);
+		lblUsername.setFont(new Font(Display.getCurrent(), Constants.fontData));
 		FormData fd_lblUsername = new FormData();
 		fd_lblUsername.top = new FormAttachment(lblIPAddress, 30);
 		fd_lblUsername.left = new FormAttachment(40);
@@ -73,6 +79,7 @@ public class HomeScreen {
 		lblUsername.setText("Username");
 
 		textUsername = new Text(shell, SWT.BORDER);
+		textUsername.setFont(new Font(Display.getCurrent(), Constants.fontData));
 		FormData fd_textUsername = new FormData();
 		fd_textUsername.width = 150;
 		fd_textUsername.height = 20;
@@ -81,6 +88,7 @@ public class HomeScreen {
 		textUsername.setLayoutData(fd_textUsername);
 
 		Label lblPassword = new Label(shell, SWT.NONE);
+		lblPassword.setFont(new Font(Display.getCurrent(), Constants.fontData));
 		FormData fd_lblPassword = new FormData();
 		fd_lblPassword.top = new FormAttachment(lblUsername, 30);
 		fd_lblPassword.left = new FormAttachment(40);
@@ -88,6 +96,7 @@ public class HomeScreen {
 		lblPassword.setText("Password");
 
 		textPassword = new Text(shell, SWT.BORDER | SWT.PASSWORD);
+		textPassword.setFont(new Font(Display.getCurrent(), Constants.fontData));
 		FormData fd_textPassword = new FormData();
 		fd_textPassword.width = 150;
 		fd_textPassword.height = 20;
@@ -96,9 +105,10 @@ public class HomeScreen {
 		textPassword.setLayoutData(fd_textPassword);
 
 		btnOk = new Button(shell, SWT.NONE);
+		btnOk.setFont(new Font(Display.getCurrent(), Constants.fontData));
 		FormData fd_btnOk = new FormData();
 		fd_btnOk.width = 75;
-		fd_btnOk.height = 20;
+		fd_btnOk.height = 35;
 		fd_btnOk.top = new FormAttachment(lblPassword, 30);
 		fd_btnOk.left = new FormAttachment(40);
 		btnOk.setLayoutData(fd_btnOk);
@@ -124,9 +134,10 @@ public class HomeScreen {
 		btnOk.setText("Ok");
 
 		btnReset = new Button(shell, SWT.NONE);
+		btnReset.setFont(new Font(Display.getCurrent(), Constants.fontData));
 		FormData fd_btnReset = new FormData();
 		fd_btnReset.right = new FormAttachment(textPassword, 0, SWT.RIGHT);
-		fd_btnReset.height = 20;
+		fd_btnReset.height = 35;
 		fd_btnReset.width = 75;
 		fd_btnReset.top = new FormAttachment(btnOk, 0, SWT.TOP);
 		btnReset.setLayoutData(fd_btnReset);

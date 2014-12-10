@@ -12,11 +12,15 @@ import org.eclipse.swt.SWT;
 import org.eclipse.swt.browser.Browser;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.widgets.Button;
 import org.eclipse.swt.widgets.Combo;
 import org.eclipse.swt.widgets.Composite;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Event;
+import org.eclipse.swt.widgets.Listener;
 
 import com.hms.common.Constants;
 import com.hms.common.JobSession;
@@ -33,6 +37,8 @@ public class GraphDisplayScreen {
 	Button btnAllRuns;
 
 	boolean isFirstTimeLoad = true;
+	
+	Process server;
 
 	static final Logger log = (Logger) LogManager.getLogger(GraphDisplayScreen.class.getName());
 
@@ -47,6 +53,7 @@ public class GraphDisplayScreen {
 		}
 
 		combo = new Combo(parent, SWT.NONE);
+		combo.setFont(new Font(Display.getCurrent(), Constants.fontData));
 		combo.setItems(temp);
 		combo.select(temp.length-1);
 		combo.addSelectionListener(new SelectionAdapter() {
@@ -58,10 +65,11 @@ public class GraphDisplayScreen {
 		FormData fd_combo = new FormData();
 		fd_combo.width = 200;
 		fd_combo.top = new FormAttachment(5);
-		fd_combo.left = new FormAttachment(30);
+		fd_combo.left = new FormAttachment(10);
 		combo.setLayoutData(fd_combo);
 
 		combo_1 = new Combo(parent, SWT.NONE);
+		combo_1.setFont(new Font(Display.getCurrent(), Constants.fontData));
 		combo_1.setItems(new String[] { Constants.CPU, Constants.DISK_RW, Constants.DISK_TIME, 
 				Constants.MEMORY, Constants.NETWORK, Constants.HADOOP_CONFIG, Constants.APP_METRICS});
 		combo_1.select(0);
@@ -73,9 +81,9 @@ public class GraphDisplayScreen {
 		});
 
 		FormData fd_combo_1 = new FormData();
-		fd_combo_1.width = 150;
+		fd_combo_1.width = 200;
 		fd_combo_1.top = new FormAttachment(combo, 0, SWT.TOP);
-		fd_combo_1.left = new FormAttachment(combo, 79);
+		fd_combo_1.left = new FormAttachment(combo, 80);
 		combo_1.setLayoutData(fd_combo_1);
 
 		browser = new Browser(parent, SWT.NONE);
@@ -97,13 +105,15 @@ public class GraphDisplayScreen {
 		}
 
 		btnNodeWise = new Button(parent, SWT.RADIO);
+		btnNodeWise.setFont(new Font(Display.getCurrent(), Constants.fontData));
 		FormData fd_btnNodeWise = new FormData();
 		fd_btnNodeWise.top = new FormAttachment(combo, 0, SWT.TOP);
-		fd_btnNodeWise.left = new FormAttachment(combo_1, 65);
+		fd_btnNodeWise.left = new FormAttachment(combo_1, 80);
 		btnNodeWise.setLayoutData(fd_btnNodeWise);
 		btnNodeWise.setText("Node wise");
 
 		btnClusterWise = new Button(parent, SWT.RADIO);
+		btnClusterWise.setFont(new Font(Display.getCurrent(), Constants.fontData));
 		btnClusterWise.setSelection(true);
 		btnClusterWise.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -113,11 +123,12 @@ public class GraphDisplayScreen {
 		});
 		FormData fd_btnClusterWise = new FormData();
 		fd_btnClusterWise.top = new FormAttachment(combo, 0, SWT.TOP);
-		fd_btnClusterWise.left = new FormAttachment(btnNodeWise, 39);
+		fd_btnClusterWise.left = new FormAttachment(btnNodeWise, 80);
 		btnClusterWise.setLayoutData(fd_btnClusterWise);
 		btnClusterWise.setText("Cluster wise");
 		
 		btnAllRuns = new Button(parent, SWT.CHECK);
+		btnAllRuns.setFont(new Font(Display.getCurrent(), Constants.fontData));
 		btnAllRuns.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
@@ -125,10 +136,53 @@ public class GraphDisplayScreen {
 			}
 		});
 		FormData fd_btnAllRuns = new FormData();
-		fd_btnAllRuns.left = new FormAttachment(btnClusterWise, 39);
+		fd_btnAllRuns.left = new FormAttachment(btnClusterWise, 80);
 		fd_btnAllRuns.top = new FormAttachment(combo, 0, SWT.TOP);
 		btnAllRuns.setLayoutData(fd_btnAllRuns);
 		btnAllRuns.setText("All runs");
+		
+		if (JobSession.isWindows)
+		{
+			String cmd = "java -jar " + JobSession.getPathForResource("jetty-runner-9.3.0.M0.jar") + " --port 8080 \"" + JobSession.hmsPath + "\"";
+			log.info("java -jar " + JobSession.getPathForResource("jetty-runner-9.3.0.M0.jar") + " --port 8080 \"" + JobSession.hmsPath + "\"");
+			
+			try
+			{
+				server = Runtime.getRuntime().exec(cmd);
+				log.info("\n\n\n");
+				log.info("Server started...");
+				log.info("\n\n\n");
+			}
+			catch (Exception e)
+			{
+				log.error("Problem in starting server ", e);
+			}
+			
+//			Runtime.getRuntime().addShutdownHook(new Thread() {
+//			    public void run() { database.close(); }
+//			});
+		}
+		
+		parent.getShell().addListener(SWT.Close, new Listener() {
+
+		      @Override
+		      public void handleEvent(Event event) {
+		         System.out.println("NOW !");
+		      }
+		   });
+		
+//		parent.addListener(SWT.Close, new Listener() {
+//		      public void handleEvent(Event event) {
+//		       
+//		    	  log.info("Going to close window");
+//		    	  
+//		    	  if (server != null)
+//		    	  {
+//		    		  server.destroy();
+//		    		  log.info("Server closed");
+//		    	  }
+//		      }
+//		    });
 	}
 
 	public void refreshItems(ArrayList<OldJob> jobList)
@@ -260,8 +314,17 @@ public class GraphDisplayScreen {
 		{
 			if (htmlFile.exists())
 			{
-				log.info("HTML File exists");
-				browser.setUrl(htmlFile.getCanonicalPath());
+				log.info("HTML File exists " + htmlFile.getCanonicalPath());
+				
+				if (JobSession.isWindows)
+				{
+					log.info("Loading html from server " + "http://localhost:8080/graph/" + whichFileType + fileName + combo_1.getText() + ".html");
+					browser.setUrl("http://localhost:8080/graph/" + whichFileType + fileName + combo_1.getText() + ".html");
+				}
+				else
+				{
+					browser.setUrl(htmlFile.getCanonicalPath());
+				}
 			}
 			else
 			{
@@ -330,7 +393,16 @@ public class GraphDisplayScreen {
 				} finally {
 					br.close();
 					log.info("HTML Created and going to load now");
-					browser.setUrl(htmlFile.getCanonicalPath());
+					
+					if (JobSession.isWindows)
+					{
+						log.info("Loading html from server " + "http://localhost:8080/graph/" + whichFileType + fileName + combo_1.getText() + ".html");
+						browser.setUrl("http://localhost:8080/graph/" + whichFileType + fileName + combo_1.getText() + ".html");
+					}
+					else
+					{
+						browser.setUrl(htmlFile.getCanonicalPath());
+					}
 				}
 			}
 		}

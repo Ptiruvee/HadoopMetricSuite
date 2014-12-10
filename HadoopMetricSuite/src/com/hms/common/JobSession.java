@@ -1,10 +1,14 @@
 package com.hms.common;
 
 import java.io.File;
+
 import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.Map;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.Logger;
 
 public class JobSession {
 
@@ -29,8 +33,12 @@ public class JobSession {
 	
 	public static String hmsPath;
 	
+	public static boolean isWindows = false;
+	
 	//Slave
 	public static Map<String, String> processIDOfSlaves = new HashMap<String, String>();
+	
+	static final Logger log = (Logger) LogManager.getLogger(JobSession.class.getName());
 
 	public static void startUp()
 	{
@@ -84,6 +92,7 @@ public class JobSession {
 		JobSession.exportFile("Template.html");
 		JobSession.exportFile("Template2.html");
 		JobSession.exportFile("NoAppMetrics.html");
+		JobSession.exportFile("jetty-runner-9.3.0.M0.jar");
 		JobSession.exportFile(Constants.APPLICATIONTYPES.get(Constants.WORD_COUNT));
     }
 	
@@ -115,5 +124,15 @@ public class JobSession {
 	public static String getGraphPath()
 	{
 		return JobSession.hmsPath + "graph/";
+	}
+	
+	public static void findOutOS()
+	{
+		log.info("OS " + System.getProperty("os.name"));
+		
+		if (System.getProperty("os.name").startsWith("Windows"))
+		{
+			JobSession.isWindows = true;
+		}
 	}
 }

@@ -7,6 +7,7 @@ import org.apache.logging.log4j.core.Logger;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.Point;
 import org.eclipse.swt.layout.FillLayout;
 import org.eclipse.swt.layout.FormAttachment;
@@ -42,6 +43,7 @@ public class TabbedScreen {
 		shell.setLayout(new FillLayout(SWT.HORIZONTAL));
 		
 		tabFolder = new TabFolder(shell, SWT.NONE);
+		tabFolder.setFont(new Font(Display.getCurrent(), Constants.fontData));
 		tabFolder.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
@@ -75,7 +77,7 @@ public class TabbedScreen {
 		makeConfigureScreen();
 		
 		makeGraphScreen();
-
+		
 		shell.open();
 		shell.layout();
 		while (!shell.isDisposed()) {

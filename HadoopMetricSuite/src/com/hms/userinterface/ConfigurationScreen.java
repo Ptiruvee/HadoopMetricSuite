@@ -5,6 +5,7 @@ import org.apache.logging.log4j.core.Logger;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
@@ -44,9 +45,21 @@ public class ConfigurationScreen {
 
 	public void displayConfigScreen(Composite parent, String experimentName) {
 
+		int compositeWidth = 520;
+		int width = 150;
+		int differenceFactor = -15;
+		
+		if (JobSession.isWindows)
+		{
+			width = 180;
+			differenceFactor = 15;
+			compositeWidth = 550;
+		}
+		
 		isFromHome = true;
 
 		text = new Text(parent, SWT.BORDER | SWT.H_SCROLL | SWT.V_SCROLL);
+		text.setFont(new Font(Display.getCurrent(), Constants.fontData));
 		text.setEditable(false);
 		FormData fd_text = new FormData();
 		fd_text.height = 400;
@@ -60,13 +73,14 @@ public class ConfigurationScreen {
 		composite.setToolTipText("Seconds");
 		FormData fd_composite = new FormData();
 		fd_composite.height = 400;
-		fd_composite.right = new FormAttachment(0, 432);
+		fd_composite.right = new FormAttachment(0, compositeWidth);
 		fd_composite.top = new FormAttachment(10);
 		fd_composite.left = new FormAttachment(5);
 		composite.setLayoutData(fd_composite);
 		composite.setLayout(new FormLayout());
 
 		lblNewLabel = new Label(composite, SWT.NONE);
+		lblNewLabel.setFont(new Font(Display.getCurrent(), Constants.fontData));
 		FormData fd_lblNewLabel = new FormData();
 		fd_lblNewLabel.top = new FormAttachment(0, 26);
 		fd_lblNewLabel.left = new FormAttachment(0, 10);
@@ -74,6 +88,7 @@ public class ConfigurationScreen {
 		lblNewLabel.setText(experimentName);
 
 		Label lblNewLabel_1 = new Label(composite, SWT.NONE);
+		lblNewLabel_1.setFont(new Font(Display.getCurrent(), Constants.fontData));
 		FormData fd_lblNewLabel_1 = new FormData();
 		fd_lblNewLabel_1.top = new FormAttachment(lblNewLabel, 50);
 		fd_lblNewLabel_1.left = new FormAttachment(0, 10);
@@ -81,6 +96,7 @@ public class ConfigurationScreen {
 		lblNewLabel_1.setText("Select the application type");
 
 		Label lblEnterTheVolume = new Label(composite, SWT.NONE);
+		lblEnterTheVolume.setFont(new Font(Display.getCurrent(), Constants.fontData));
 		FormData fd_lblEnterTheVolume = new FormData();
 		fd_lblEnterTheVolume.top = new FormAttachment(lblNewLabel_1, 40);
 		fd_lblEnterTheVolume.left = new FormAttachment(lblNewLabel, 0, SWT.LEFT);
@@ -89,6 +105,7 @@ public class ConfigurationScreen {
 		.setText("Enter the volume of input data\n*Maximum data 8 GB");
 
 		Label lblNewLabel_2 = new Label(composite, SWT.NONE);
+		lblNewLabel_2.setFont(new Font(Display.getCurrent(), Constants.fontData));
 		FormData fd_lblNewLabel_2 = new FormData();
 		fd_lblNewLabel_2.top = new FormAttachment(lblEnterTheVolume, 41);
 		fd_lblNewLabel_2.left = new FormAttachment(lblNewLabel, 0, SWT.LEFT);
@@ -96,6 +113,7 @@ public class ConfigurationScreen {
 		lblNewLabel_2.setText("Frequency of retrieval (seconds)");
 
 		Label lblNewLabel_3 = new Label(composite, SWT.NONE);
+		lblNewLabel_3.setFont(new Font(Display.getCurrent(), Constants.fontData));
 		FormData fd_lblNewLabel_3 = new FormData();
 		fd_lblNewLabel_3.top = new FormAttachment(lblNewLabel_2, 39);
 		fd_lblNewLabel_3.left = new FormAttachment(lblNewLabel, 0, SWT.LEFT);
@@ -103,6 +121,7 @@ public class ConfigurationScreen {
 		lblNewLabel_3.setText("Select number of runs");
 
 		Label lblNewLabel_4 = new Label(composite, SWT.NONE);
+		lblNewLabel_4.setFont(new Font(Display.getCurrent(), Constants.fontData));
 		FormData fd_lblNewLabel_4 = new FormData();
 		fd_lblNewLabel_4.top = new FormAttachment(lblNewLabel_3, 39);
 		fd_lblNewLabel_4.left = new FormAttachment(lblNewLabel, 0, SWT.LEFT);
@@ -110,52 +129,59 @@ public class ConfigurationScreen {
 		lblNewLabel_4.setText("Select a metric to display");
 
 		combo = new Combo(composite, SWT.NONE);
+		combo.setFont(new Font(Display.getCurrent(), Constants.fontData));
 		combo.setItems(new String[] { Constants.WORD_COUNT, Constants.SORT,
 				Constants.GREP, Constants.DEDUP });
 		combo.select(0);
 		FormData fd_combo = new FormData();
-		fd_combo.width = 150;
+		fd_combo.width = width - differenceFactor;
 		fd_combo.bottom = new FormAttachment(lblNewLabel_1, 0, SWT.BOTTOM);
 		fd_combo.left = new FormAttachment(lblNewLabel_1, 61);
 		combo.setLayoutData(fd_combo);
 
 		text_1 = new Text(composite, SWT.BORDER);
+		text_1.setFont(new Font(Display.getCurrent(), Constants.fontData));
 		text_1.setText("1");
 		text_1.setToolTipText("GB");
 		FormData fd_text_1 = new FormData();
-		fd_text_1.width = 140;
+		fd_text_1.width = width;
 		fd_text_1.bottom = new FormAttachment(lblEnterTheVolume, 0, SWT.BOTTOM);
 		fd_text_1.left = new FormAttachment(combo, 0, SWT.LEFT);
 		text_1.setLayoutData(fd_text_1);
 
 		text_2 = new Text(composite, SWT.BORDER);
+		text_2.setFont(new Font(Display.getCurrent(), Constants.fontData));
 		text_2.setText("1");
 		FormData fd_text_2 = new FormData();
-		fd_text_2.width = 140;
+		fd_text_2.width = width;
 		fd_text_2.bottom = new FormAttachment(lblNewLabel_2, 0, SWT.BOTTOM);
 		fd_text_2.left = new FormAttachment(combo, 0, SWT.LEFT);
 		text_2.setLayoutData(fd_text_2);
 
 		text_3 = new Text(composite, SWT.BORDER);
+		text_3.setFont(new Font(Display.getCurrent(), Constants.fontData));
 		text_3.setText("1");
 		FormData fd_text_3 = new FormData();
-		fd_text_3.width = 140;
+		fd_text_3.width = width;
 		fd_text_3.bottom = new FormAttachment(lblNewLabel_3, 0, SWT.BOTTOM);
 		fd_text_3.left = new FormAttachment(combo, 0, SWT.LEFT);
 		text_3.setLayoutData(fd_text_3);
 
 		combo_1 = new Combo(composite, SWT.NONE);
+		combo_1.setFont(new Font(Display.getCurrent(), Constants.fontData));
 		combo_1.setItems(new String[] { Constants.CPU, Constants.CPU_PROCESS,
 				Constants.DISK, Constants.MEMORY, Constants.NETWORK });
 		combo_1.select(0);
 		FormData fd_combo_1 = new FormData();
-		fd_combo_1.width = 150;
+		fd_combo_1.width = width - differenceFactor;
 		fd_combo_1.bottom = new FormAttachment(lblNewLabel_4, 0, SWT.BOTTOM);
 		fd_combo_1.left = new FormAttachment(combo, 0, SWT.LEFT);
 		combo_1.setLayoutData(fd_combo_1);
 
 		Label label = new Label(parent, SWT.SEPARATOR
 				| SWT.VERTICAL);
+		label.setFont(new Font(Display.getCurrent(), Constants.fontData));
+		fd_text.left = new FormAttachment(label, 35);
 		FormData fd_label = new FormData();
 		fd_label.height = 400;
 		fd_label.left = new FormAttachment(composite, 35);
@@ -163,6 +189,7 @@ public class ConfigurationScreen {
 		label.setLayoutData(fd_label);
 
 		btnStart = new Button(parent, SWT.NONE);
+		btnStart.setFont(new Font(Display.getCurrent(), Constants.fontData));
 		btnStart.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
@@ -208,12 +235,15 @@ public class ConfigurationScreen {
 			}
 		});
 		FormData fd_btnStart = new FormData();
+		fd_btnStart.height = 35;
+		fd_btnStart.width = 75;
 		fd_btnStart.top = new FormAttachment(80);
 		fd_btnStart.left = new FormAttachment(35);
 		btnStart.setLayoutData(fd_btnStart);
 		btnStart.setText("Start");
 
 		btnReset = new Button(parent, SWT.NONE);
+		btnReset.setFont(new Font(Display.getCurrent(), Constants.fontData));
 		btnReset.addSelectionListener(new SelectionAdapter() {
 			@Override
 			public void widgetSelected(SelectionEvent arg0) {
@@ -226,6 +256,8 @@ public class ConfigurationScreen {
 			}
 		});
 		FormData fd_btnReset = new FormData();
+		fd_btnReset.height = 35;
+		fd_btnReset.width = 75;
 		fd_btnReset.top = new FormAttachment(btnStart, 0, SWT.TOP);
 		fd_btnReset.left = new FormAttachment(btnStart, 256);
 		btnReset.setLayoutData(fd_btnReset);

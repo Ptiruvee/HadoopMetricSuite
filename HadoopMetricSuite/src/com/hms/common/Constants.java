@@ -4,6 +4,9 @@ import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.graphics.FontData;
+
 public class Constants {
 	
 	//Error codes
@@ -160,4 +163,10 @@ public class Constants {
 	
 	public static final String DELIMITER = "_";
 	public static final String DECIMAL_LIMIT = "%.2f";
+	
+	//Font
+	public static final String fontName = "Helvetica Neue DeskInterface";
+	public static final int fontSize = 13;
+	public static final int fontStyle = SWT.NORMAL;
+	public static final FontData fontData = new FontData(fontName, fontSize, fontStyle);
 }
