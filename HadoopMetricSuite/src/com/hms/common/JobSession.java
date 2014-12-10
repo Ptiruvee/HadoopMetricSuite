@@ -31,7 +31,7 @@ public class JobSession {
 	public static String startTime;
 	public static String endTime;
 	
-	public static String hmsPath;
+	public static String hmsPath = "";
 	
 	public static boolean isWindows = false;
 	
@@ -78,21 +78,38 @@ public class JobSession {
 		
 		if (dbFile.exists())
 		{
-			System.out.println("DB File exists, so do not replace db file");
+			log.info("DB File exists, so do not replace db file");
 		}
 		else
 		{
 			JobSession.exportFile("HadoopMetrics.sqlite");
 		}
 		
+		log.info("DB File exists, so do not replace db file1");
 		JobSession.exportFile("DataGenerator.jar");
+		
+		log.info("DB File exists, so do not replace db file2");
 		JobSession.exportFile("Default.html");
+		
+		log.info("DB File exists, so do not replace db file3");
 		JobSession.exportFile("NoXML.html");
+		
+		log.info("DB File exists, so do not replace db file4");
 		JobSession.exportFile("Platform.sh");
+		
+		log.info("DB File exists, so do not replace db file5");
 		JobSession.exportFile("Template.html");
+		
+		log.info("DB File exists, so do not replace db file6");
 		JobSession.exportFile("Template2.html");
+		
+		log.info("DB File exists, so do not replace db file7");
 		JobSession.exportFile("NoAppMetrics.html");
+		
+		log.info("DB File exists, so do not replace db file8");
 		JobSession.exportFile("jetty-runner-9.3.0.M0.jar");
+		
+		log.info("DB File exists, so do not replace db file9");
 		JobSession.exportFile(Constants.APPLICATIONTYPES.get(Constants.WORD_COUNT));
     }
 	

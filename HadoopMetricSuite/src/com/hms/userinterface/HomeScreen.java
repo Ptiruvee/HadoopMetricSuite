@@ -159,6 +159,7 @@ public class HomeScreen {
 			if (!display.readAndDispatch())
 				display.sleep();
 		}
+		
 		display.dispose();
 	}
 
@@ -180,11 +181,28 @@ public class HomeScreen {
 	
 	private void chooseOutputPath()
 	{
-		DirectoryDialog dialog = new DirectoryDialog(shell);
-	    //dialog.setFilterPath("c:\\"); // Windows specific
-	    
-	    JobSession.hmsPath = dialog.open();
-	    JobSession.hmsPath += "/";
+		DirectoryDialog dialog = new DirectoryDialog(shell, SWT.APPLICATION_MODAL);
+		dialog.setMessage("Please choose a directory for the application to store metrics");
+		dialog.setText(Constants.APPLICATION_TITLE);
+		
+		String str = dialog.open();
+
+		if (str == null)
+		{
+		    File dir = new File(System.getProperty("user.home") + "/Desktop/" + "HMS");
+		    dir.mkdir();
+		    
+		    JobSession.hmsPath = System.getProperty("user.home") + "/Desktop/HMS/";
+			
+			MessageBox messageBox = new MessageBox(shell, SWT.ICON_INFORMATION | SWT.IGNORE);
+			messageBox.setMessage("A directory called HMS has been created in the dekstop to store the metrics");
+			messageBox.open();
+		}
+		else
+		{
+			JobSession.hmsPath = str;
+	    	JobSession.hmsPath += "/";
+		}
 	    
 	    log.info("HMS Path " + JobSession.hmsPath);
 	    
@@ -209,9 +227,9 @@ public class HomeScreen {
 
 				if (shallProceed)
 				{
-					shell.setVisible(false);
-					
 					chooseOutputPath();
+					
+					shell.close();
 					
 					UserLog.getUserLog();
 

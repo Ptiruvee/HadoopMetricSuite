@@ -55,6 +55,7 @@ public class DatabaseManager {
 	SQLException {
 		Class.forName("org.sqlite.JDBC");
 		try {
+			log.info("DB HMS Path " + JobSession.hmsPath);
 			connection = DriverManager
 					.getConnection("jdbc:sqlite:" + JobSession.hmsPath + "HadoopMetrics.sqlite");
 			connection.setAutoCommit(false);

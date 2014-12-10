@@ -157,32 +157,22 @@ public class GraphDisplayScreen {
 			{
 				log.error("Problem in starting server ", e);
 			}
-			
-//			Runtime.getRuntime().addShutdownHook(new Thread() {
-//			    public void run() { database.close(); }
-//			});
 		}
 		
 		parent.getShell().addListener(SWT.Close, new Listener() {
 
 		      @Override
 		      public void handleEvent(Event event) {
-		         System.out.println("NOW !");
+		         
+		    	  if (server != null)
+		    	  {
+		    		  server.destroy();
+		    		  log.info("\n\n\n");
+		    		  log.info("Server closed...");
+		    		  log.info("\n\n\n");
+		    	  }
 		      }
 		   });
-		
-//		parent.addListener(SWT.Close, new Listener() {
-//		      public void handleEvent(Event event) {
-//		       
-//		    	  log.info("Going to close window");
-//		    	  
-//		    	  if (server != null)
-//		    	  {
-//		    		  server.destroy();
-//		    		  log.info("Server closed");
-//		    	  }
-//		      }
-//		    });
 	}
 
 	public void refreshItems(ArrayList<OldJob> jobList)
