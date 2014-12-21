@@ -203,7 +203,7 @@ public class HomeScreen {
 			JobSession.hmsPath = str;
 	    	JobSession.hmsPath += "/";
 		}
-	    
+		
 	    log.info("HMS Path " + JobSession.hmsPath);
 	    
 	    try
@@ -243,8 +243,6 @@ public class HomeScreen {
 					messageBox.setMessage(UserLog.getUserLog());
 					messageBox.open();
 				}
-
-				setWidgetEnabled(true);
 			}
 		});
 	}

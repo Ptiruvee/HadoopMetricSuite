@@ -364,6 +364,14 @@ public class GraphDisplayScreen {
 					String htmlContent = sb.toString();
 					htmlContent = htmlContent.replace(toReplaceTemplate, whichFileType + fileName + combo_1.getText() + ".tsv");
 
+					if (whichFileType == Constants.NODE)
+					{
+						if (combo_1.getText().equalsIgnoreCase(Constants.CPU) || combo_1.getText().equalsIgnoreCase(Constants.MEMORY))
+						{
+							htmlContent = htmlContent.replace(".tickFormat(d3.format(\"s\"))", "");
+						}
+					}
+					
 					if (combo_1.getText().equalsIgnoreCase(Constants.DISK_RW))
 					{
 						htmlContent = htmlContent.replace("Utilisation", "No.of reads/writes");

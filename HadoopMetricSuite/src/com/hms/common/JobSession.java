@@ -111,6 +111,15 @@ public class JobSession {
 		
 		log.info("DB File exists, so do not replace db file9");
 		JobSession.exportFile(Constants.APPLICATIONTYPES.get(Constants.WORD_COUNT));
+		
+		log.info("DB File exists, so do not replace db file10");
+		JobSession.exportFile(Constants.APPLICATIONTYPES.get(Constants.GREP));
+		
+		log.info("DB File exists, so do not replace db file11");
+		JobSession.exportFile(Constants.APPLICATIONTYPES.get(Constants.SORT));
+		
+		log.info("DB File exists, so do not replace db file12");
+		JobSession.exportFile(Constants.APPLICATIONTYPES.get(Constants.DEDUP));
     }
 	
 	private static void exportFile(String resourceName) throws Exception

@@ -355,11 +355,7 @@ public class ClusterMaster {
 
 		boolean jobResult = false;
 
-		//transferApplicationJARFile
-		if (type.equalsIgnoreCase(Constants.WORD_COUNT))
-		{
-			transferApplicationJARFile(type);
-		}
+		transferApplicationJARFile(type);
 
 		if (transferDataGenerationJARFile())
 		{
@@ -381,15 +377,18 @@ public class ClusterMaster {
 							}
 							else if (type.equalsIgnoreCase(Constants.GREP))
 							{
-								applicationPath = "/home/ec2-user/hadoop-2.5.0/share/hadoop/mapreduce/hadoop-mapreduce-examples-2.5.0.jar grep";
+								applicationPath = Constants.USER_PATH + Constants.APPLICATIONTYPES.get(type) + " " + Constants.GREP;
 							}
 							else if (type.equalsIgnoreCase(Constants.SORT))
 							{
-								//applicationPath = "/home/ec2-user/hadoop-2.5.0/share/hadoop/mapreduce/hadoop-mapreduce-examples-2.5.0.jar wordcount";
+								applicationPath = Constants.USER_PATH + Constants.APPLICATIONTYPES.get(type) + " " + Constants.SORT;
+								applicationPath += " -inFormat org.apache.hadoop.mapreduce.lib.input.KeyValueTextInputFormat -outFormat";
+								applicationPath += " org.apache.hadoop.mapreduce.lib.output.TextOutputFormat -outKey";
+								applicationPath += " org.apache.hadoop.io.Text -outValue org.apache.hadoop.io.Text";
 							}
 							else if (type.equalsIgnoreCase(Constants.DEDUP))
 							{
-								//applicationPath = "/home/ec2-user/hadoop-2.5.0/share/hadoop/mapreduce/hadoop-mapreduce-examples-2.5.0.jar wordcount";
+								applicationPath = Constants.USER_PATH + Constants.APPLICATIONTYPES.get(type) + " " + Constants.DEDUP;
 							}
 
 							String finalPath = hadoopPath + applicationPath + Constants.INPUT_PATH + Constants.OUTPUT_PATH;
@@ -408,9 +407,18 @@ public class ClusterMaster {
 							log.info(Constants.ERRORCODES.get("JobAboutToRun"));
 
 							Result res = sshMaster.exec(runJob);
-
-							if (res.isSuccess)
+							
+							log.info("******** HADOOP JOB RUN ***********");
+							log.info("Result " + res);
+							log.info("Result code " + res.rc);
+							log.info("Result error msg " + res.error_msg);
+							log.info("Result sysout " + res.sysout);
+							log.info("******** HADOOP JOB DONE ***********");
+							
+							if (res.sysout.startsWith("Counters"))
 							{
+								log.info("******** HADOOP JOB SUCCESSFUL ***********");
+								
 								jobResult = true;
 
 								JobSession.endTime = fetchTime();
@@ -420,12 +428,30 @@ public class ClusterMaster {
 								readConfigFile();
 								
 								readAppMetrics();
-							}                        
+							}
 							else
 							{
-								UserLog.addToLog(Constants.ERRORCODES.get("JobCannotRun"));
-								log.info(Constants.ERRORCODES.get("JobCannotRun"));
+								if (res.isSuccess)
+								{
+									log.info("******** HADOOP JOB SUCCESSFUL, SUCCESS ***********");
+									
+									jobResult = true;
+
+									JobSession.endTime = fetchTime();
+
+									readLogFile();
+
+									readConfigFile();
+									
+									readAppMetrics();
+								}
+								else
+								{
+									UserLog.addToLog(Constants.ERRORCODES.get("JobCannotRun"));
+									log.info(Constants.ERRORCODES.get("JobCannotRun"));
+								}
 							}
+
 						} catch (TaskExecFailException e) {
 							log.error("Job execution exception", e);
 						} catch (Exception e) {
@@ -702,8 +728,7 @@ public class ClusterMaster {
 
 			Result res = sshMaster.exec(grep);
 
-			if (res.isSuccess)
-			{
+			//Success condition unchecked
 				UserLog.addToLog(Constants.ERRORCODES.get("AppMetricsFileRead"));
 				log.info(Constants.ERRORCODES.get("AppMetricsFileRead"));
 
@@ -712,12 +737,7 @@ public class ClusterMaster {
 				logOutput.close();
 
 				return true;
-			}                        
-			else
-			{
-				UserLog.addToLog(Constants.ERRORCODES.get("AppMetricsFileNoRead"));
-				log.info(Constants.ERRORCODES.get("AppMetricsFileNoRead"));
-			}
+
 		} catch (TaskExecFailException e) {
 			log.error("Read app metrics file exception", e);
 		} catch (Exception e) {
