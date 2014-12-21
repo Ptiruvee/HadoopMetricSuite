@@ -1,12 +1,18 @@
 package com.hms.userinterface;
 
+import java.io.File;
+
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.core.Logger;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.events.SelectionAdapter;
 import org.eclipse.swt.events.SelectionEvent;
+import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.layout.FormAttachment;
 import org.eclipse.swt.layout.FormData;
 import org.eclipse.swt.layout.FormLayout;
 import org.eclipse.swt.widgets.Button;
+import org.eclipse.swt.widgets.DirectoryDialog;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.MessageBox;
@@ -17,7 +23,6 @@ import com.hms.common.Constants;
 import com.hms.common.JobSession;
 import com.hms.common.UserLog;
 import com.hms.connection.ClusterMaster;
-import com.hms.database.DatabaseManager;
 
 public class HomeScreen {
 
@@ -31,24 +36,38 @@ public class HomeScreen {
 	private String username;
 	private String password;
 	private String ipAddress;
+	
+	static final Logger log = (Logger) LogManager.getLogger(HomeScreen.class.getName());
+	
+	public static void main(String[] args) {
+		HomeScreen home = new HomeScreen();
+		home.displayHome();
+	}
 
 	public void displayHome()
 	{
+		JobSession.findOutOS();
+		
+		//Clean up old files
+		JobSession.startUp();
+		
 		Display display = Display.getDefault();
 
 		shell = new Shell();
-		shell.setMinimumSize(500, 500);
+		shell.setMinimumSize(1200, 700);
 		shell.setText(Constants.APPLICATION_TITLE);
 		shell.setLayout(new FormLayout());
 
 		Label lblIPAddress = new Label(shell, SWT.NONE);
+		lblIPAddress.setFont(new Font(Display.getCurrent(), Constants.fontData));
 		FormData fd_lblIPAddress = new FormData();
 		fd_lblIPAddress.top = new FormAttachment(34);
-		fd_lblIPAddress.left = new FormAttachment(25);
+		fd_lblIPAddress.left = new FormAttachment(40);
 		lblIPAddress.setLayoutData(fd_lblIPAddress);
 		lblIPAddress.setText("IP Address");
 
 		textIPAddr = new Text(shell, SWT.BORDER);
+		textIPAddr.setFont(new Font(Display.getCurrent(), Constants.fontData));
 		FormData fd_textIPAddr = new FormData();
 		fd_textIPAddr.width = 150;
 		fd_textIPAddr.height = 20;
@@ -57,13 +76,15 @@ public class HomeScreen {
 		textIPAddr.setLayoutData(fd_textIPAddr);
 
 		Label lblUsername = new Label(shell, SWT.NONE);
+		lblUsername.setFont(new Font(Display.getCurrent(), Constants.fontData));
 		FormData fd_lblUsername = new FormData();
 		fd_lblUsername.top = new FormAttachment(lblIPAddress, 30);
-		fd_lblUsername.left = new FormAttachment(25);
+		fd_lblUsername.left = new FormAttachment(40);
 		lblUsername.setLayoutData(fd_lblUsername);
 		lblUsername.setText("Username");
 
 		textUsername = new Text(shell, SWT.BORDER);
+		textUsername.setFont(new Font(Display.getCurrent(), Constants.fontData));
 		FormData fd_textUsername = new FormData();
 		fd_textUsername.width = 150;
 		fd_textUsername.height = 20;
@@ -72,13 +93,15 @@ public class HomeScreen {
 		textUsername.setLayoutData(fd_textUsername);
 
 		Label lblPassword = new Label(shell, SWT.NONE);
+		lblPassword.setFont(new Font(Display.getCurrent(), Constants.fontData));
 		FormData fd_lblPassword = new FormData();
 		fd_lblPassword.top = new FormAttachment(lblUsername, 30);
-		fd_lblPassword.left = new FormAttachment(25);
+		fd_lblPassword.left = new FormAttachment(40);
 		lblPassword.setLayoutData(fd_lblPassword);
 		lblPassword.setText("Password");
 
 		textPassword = new Text(shell, SWT.BORDER | SWT.PASSWORD);
+		textPassword.setFont(new Font(Display.getCurrent(), Constants.fontData));
 		FormData fd_textPassword = new FormData();
 		fd_textPassword.width = 150;
 		fd_textPassword.height = 20;
@@ -87,11 +110,12 @@ public class HomeScreen {
 		textPassword.setLayoutData(fd_textPassword);
 
 		btnOk = new Button(shell, SWT.NONE);
+		btnOk.setFont(new Font(Display.getCurrent(), Constants.fontData));
 		FormData fd_btnOk = new FormData();
 		fd_btnOk.width = 75;
-		fd_btnOk.height = 20;
+		fd_btnOk.height = 35;
 		fd_btnOk.top = new FormAttachment(lblPassword, 30);
-		fd_btnOk.left = new FormAttachment(25);
+		fd_btnOk.left = new FormAttachment(40);
 		btnOk.setLayoutData(fd_btnOk);
 		btnOk.addSelectionListener(new SelectionAdapter() {
 			@Override
@@ -115,9 +139,10 @@ public class HomeScreen {
 		btnOk.setText("Ok");
 
 		btnReset = new Button(shell, SWT.NONE);
+		btnReset.setFont(new Font(Display.getCurrent(), Constants.fontData));
 		FormData fd_btnReset = new FormData();
 		fd_btnReset.right = new FormAttachment(textPassword, 0, SWT.RIGHT);
-		fd_btnReset.height = 20;
+		fd_btnReset.height = 35;
 		fd_btnReset.width = 75;
 		fd_btnReset.top = new FormAttachment(btnOk, 0, SWT.TOP);
 		btnReset.setLayoutData(fd_btnReset);
@@ -134,10 +159,12 @@ public class HomeScreen {
 
 		shell.pack();
 		shell.open();
+		
 		while (!shell.isDisposed()) {
 			if (!display.readAndDispatch())
 				display.sleep();
 		}
+		
 		display.dispose();
 	}
 
@@ -156,6 +183,46 @@ public class HomeScreen {
 			shallProceed = true;
 		}
 	}
+	
+	private void chooseOutputPath()
+	{
+		DirectoryDialog dialog = new DirectoryDialog(shell, SWT.APPLICATION_MODAL);
+		dialog.setMessage("Please choose a directory for the application to store metrics");
+		dialog.setText(Constants.APPLICATION_TITLE);
+		
+		String str = dialog.open();
+
+		if (str == null)
+		{
+		    File dir = new File(System.getProperty("user.home") + "/Desktop/" + "HMS");
+		    dir.mkdir();
+		    
+		    JobSession.hmsPath = System.getProperty("user.home") + "/Desktop/HMS/";
+			
+			MessageBox messageBox = new MessageBox(shell, SWT.ICON_INFORMATION | SWT.IGNORE);
+			messageBox.setMessage("A directory called HMS has been created in the dekstop to store the metrics");
+			messageBox.open();
+		}
+		else
+		{
+			JobSession.hmsPath = str;
+	    	JobSession.hmsPath += "/";
+		}
+		
+	    log.info("HMS Path " + JobSession.hmsPath);
+	    
+	    try
+	    {
+	    	JobSession.exportResourcesFromJAR();
+	    }
+	    catch (Exception e)
+	    {
+	    	log.error("Excepiton in exporting sqlite outside jar", e);
+	    }
+	    
+	    File dir = new File(JobSession.hmsPath + "graph");
+	    dir.mkdir();
+	}
 
 	private void updateUI()
 	{
@@ -165,25 +232,14 @@ public class HomeScreen {
 
 				if (shallProceed)
 				{
-					shell.setVisible(false);
+					chooseOutputPath();
+					
+					shell.close();
+					
+					UserLog.getUserLog();
 
-					int expNo = 0;
-					
-					try
-					{
-						DatabaseManager dbManager = new DatabaseManager();
-						dbManager.getConnection();
-						expNo = dbManager.getExperimentCount() + 1;
-						dbManager.closeConnection();
-					}
-					catch (Exception e)
-					{
-						System.out.println("Exception inside experiment count fetch");
-						e.printStackTrace();
-					}
-					
-					ConfigurationScreen config = new ConfigurationScreen();
-					config.displayConfigScreen("Experiment " + expNo);
+					TabbedScreen tab = new TabbedScreen();
+					tab.displayTabbedScreen();
 				}
 				else
 				{
@@ -192,8 +248,6 @@ public class HomeScreen {
 					messageBox.setMessage(UserLog.getUserLog());
 					messageBox.open();
 				}
-
-				setWidgetEnabled(true);
 			}
 		});
 	}
