@@ -243,6 +243,8 @@ public class HomeScreen {
 				}
 				else
 				{
+					setWidgetEnabled(true);
+					
 					MessageBox messageBox = new MessageBox(shell, SWT.ICON_WARNING | SWT.IGNORE);
 					messageBox.setText("Warning");
 					messageBox.setMessage(UserLog.getUserLog());
