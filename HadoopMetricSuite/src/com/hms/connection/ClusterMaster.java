@@ -19,6 +19,23 @@ import com.hms.common.JobSession;
 import com.hms.common.UserLog;
 import com.hms.database.DatabaseManager;
 
+/**
+ * @author adithya
+ * @version 1.0
+ *
+ * This class is responsible for the following:
+ * 1) Establish SSH connection with namenode and hold it till the application is closed
+ * 2) Fetches slave list from namenode
+ * 3) Transfers and runs shell script for collecting platform level metrics on namenode
+ * 4) Makes note of job start and end time
+ * 5) Transfers data generation jar, cleans up namenode HDFS and initiates data generation on namenode
+ * 6) Transfers application jars and initiates hadoop job
+ * 7) Kills shell script and fetches log files from namenode
+ * 8) Fetches application metrics file and mapred-site.xml
+ * 9) Creates and uses ClusterSlave objects
+ *
+ */
+
 public class ClusterMaster {
 
 	private SSHExec sshMaster = null;

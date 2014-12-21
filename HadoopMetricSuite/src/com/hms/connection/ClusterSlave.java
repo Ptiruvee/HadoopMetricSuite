@@ -18,6 +18,16 @@ import com.hms.common.JobSession;
 import com.hms.common.UserLog;
 import com.hms.database.DatabaseManager;
 
+/**
+ * @author adithya
+ * @version 1.0
+ * 
+ * This class is responsible for the following:
+ * 1) Establish SSH connection with datanode and disconnect after work is done
+ * 2) Transfers and runs shell script for collecting platform level metrics on datanode
+ * 3) Kills shell script and fetches log files from datanode
+ *
+ */
 public class ClusterSlave {
 
 	private SSHExec sshSlave = null;

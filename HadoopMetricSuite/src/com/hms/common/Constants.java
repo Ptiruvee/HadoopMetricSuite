@@ -7,6 +7,14 @@ import java.util.Map;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.FontData;
 
+/**
+ * @author adithya
+ * @version 1.0
+ *
+ * This class is responsible to hold all common or constant variables required for this application.
+ *
+ */
+
 public class Constants {
 	
 	//Error codes

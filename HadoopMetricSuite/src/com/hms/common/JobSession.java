@@ -10,6 +10,15 @@ import java.util.Map;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.core.Logger;
 
+/**
+ * @author adithya
+ * @version 1.0
+ *
+ * This class is responsible to maintain variables related to an application run and test, i.e each time application is opened 
+ * and whenever a test is run.
+ *
+ */
+
 public class JobSession {
 
 	//User account

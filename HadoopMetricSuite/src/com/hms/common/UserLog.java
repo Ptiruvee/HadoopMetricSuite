@@ -1,5 +1,14 @@
 package com.hms.common;
 
+/**
+ * @author adithya
+ * @version 1.0
+ *
+ * This class is responsible to collect and hold logs from ClusterMaster/ClusterSlave class to display it to the user. It will be
+ * accessed and flushed by ConfigurationScreen.
+ *
+ */
+
 public class UserLog {
 
 	private static StringBuilder logMessage = new StringBuilder();

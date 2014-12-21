@@ -28,6 +28,15 @@ import com.hms.common.OldJob;
 
 /**
  * @author pratyushatiruveedhula
+ * @version 1.0
+ * 
+ * This class is responsible to manage all database operations for this application
+ * 1) Creates connection with SQLite
+ * 2) Inserts into jobconfig table from ClusterMaster
+ * 3) Read log files and inserts into platformmetrics table from ClusterMaster/ClusterSlave
+ * 4) Gets experiment count for TabbedScreen
+ * 5) Gets experiment list for GraphDisplayScreen
+ * 6) Reads database and write as tsv files for GraphDisplayScreen
  * 
  */
 public class DatabaseManager {

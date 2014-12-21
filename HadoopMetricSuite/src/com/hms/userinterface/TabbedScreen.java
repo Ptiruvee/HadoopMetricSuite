@@ -23,6 +23,13 @@ import com.hms.common.Constants;
 import com.hms.common.OldJob;
 import com.hms.database.DatabaseManager;
 
+/**
+ * @author adithya
+ * @version 1.0
+ * 
+ * This class is responsible for managing ConfigurationScreen and GraphDisplayScreen as tabs in a single window
+ * 
+ */
 public class TabbedScreen {
 	
 	TabFolder tabFolder;

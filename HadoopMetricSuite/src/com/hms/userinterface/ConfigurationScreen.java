@@ -23,6 +23,13 @@ import com.hms.common.UserLog;
 import com.hms.connection.ClusterMaster;
 import com.hms.database.DatabaseManager;
 
+/**
+ * @author adithya
+ * @version 1.0
+ * 
+ * This class is responsible for taking input from user about test parameters through user interface elements
+ *  
+ */
 public class ConfigurationScreen {
 
 	private Text text;

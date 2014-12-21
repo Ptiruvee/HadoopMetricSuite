@@ -24,6 +24,13 @@ import com.hms.common.JobSession;
 import com.hms.common.UserLog;
 import com.hms.connection.ClusterMaster;
 
+/**
+ * @author adithya
+ * @version 1.0
+ * 
+ * This class is responsible for getting input from user for namenode IP address and credentials.
+ * 
+ */
 public class HomeScreen {
 
 	protected Shell shell;

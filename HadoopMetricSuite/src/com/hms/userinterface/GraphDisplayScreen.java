@@ -27,6 +27,14 @@ import com.hms.common.JobSession;
 import com.hms.common.OldJob;
 import com.hms.database.DatabaseManager;
 
+/**
+ * @author adithya
+ * @version 1.0
+ * 
+ * This class is responsible for generating HTML/tsv files and display graphs to users. It also displays application metrics
+ * text file and hadoop configuration xml.
+ * 
+ */
 public class GraphDisplayScreen {
 
 	Combo combo;
