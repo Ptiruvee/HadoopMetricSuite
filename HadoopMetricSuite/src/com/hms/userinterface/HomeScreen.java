@@ -38,6 +38,11 @@ public class HomeScreen {
 	private String ipAddress;
 	
 	static final Logger log = (Logger) LogManager.getLogger(HomeScreen.class.getName());
+	
+	public static void main(String[] args) {
+		HomeScreen home = new HomeScreen();
+		home.displayHome();
+	}
 
 	public void displayHome()
 	{
